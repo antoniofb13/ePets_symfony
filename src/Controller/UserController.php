@@ -24,6 +24,22 @@ class UserController extends AbstractController
         ]);
     }
 
+    #[Route('/usuario/login', name: 'app_user_login', methods: ['GET'])]
+    public function login(Request $request, UsuarioRepository $usuarioRepository): JsonResponse{
+
+        $json  = json_decode($request->getContent(), true);
+        $usuario = $usuarioRepository->findOneBy(['username' => $json['username']]);
+
+        if($usuario==null or $usuario->getPassword()!=$json['password']){
+            return $this->json([
+                'mensaje' => 'Usuario o contraseña no son correctos',
+            ]);
+        }
+        return $this->json([
+            'mensaje' => 'Se ha logeado correctamente',
+        ]);
+    }
+
     #[Route('/usuario/listar', name: 'app_usuario_listar', methods: ['GET'])]
     public function listar(UsuarioRepository $usuarioRepository, Utilidades $utilidades): JsonResponse
     {
