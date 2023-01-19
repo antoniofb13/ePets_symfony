@@ -2,26 +2,26 @@
 
 namespace App\Repository;
 
-use App\Entity\Usuario;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<Usuario>
+ * @extends ServiceEntityRepository<User>
  *
- * @method Usuario|null find($id, $lockMode = null, $lockVersion = null)
- * @method Usuario|null findOneBy(array $criteria, array $orderBy = null)
- * @method Usuario[]    findAll()
- * @method Usuario[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method User|null find($id, $lockMode = null, $lockVersion = null)
+ * @method User|null findOneBy(array $criteria, array $orderBy = null)
+ * @method User[]    findAll()
+ * @method User[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class UsuarioRepository extends ServiceEntityRepository
+class UserRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Usuario::class);
+        parent::__construct($registry, User::class);
     }
 
-    public function save(Usuario $entity, bool $flush = false): void
+    public function save(User $entity, bool $flush = false): void
     {
         $this->getEntityManager()->persist($entity);
 
@@ -30,7 +30,7 @@ class UsuarioRepository extends ServiceEntityRepository
         }
     }
 
-    public function remove(Usuario $entity, bool $flush = false): void
+    public function remove(User $entity, bool $flush = false): void
     {
         $this->getEntityManager()->remove($entity);
 
@@ -40,7 +40,7 @@ class UsuarioRepository extends ServiceEntityRepository
     }
 
 //    /**
-//     * @return Usuario[] Returns an array of Usuario objects
+//     * @return User[] Returns an array of User objects
 //     */
 //    public function findByExampleField($value): array
 //    {
@@ -54,7 +54,7 @@ class UsuarioRepository extends ServiceEntityRepository
 //        ;
 //    }
 
-//    public function findOneBySomeField($value): ?Usuario
+//    public function findOneBySomeField($value): ?User
 //    {
 //        return $this->createQueryBuilder('u')
 //            ->andWhere('u.exampleField = :val')
