@@ -35,15 +35,15 @@ class User
     private ?string $password = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    private $imagen = null;
+    private ?string $imagen = null;
 
     #[ORM\Column]
     private ?bool $protectora = null;
 
     #[ORM\ManyToOne(inversedBy: 'id_user')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?rol $id_rol = null;
-
+    private ?Rol $id_rol = null;
+/*
     #[ORM\OneToMany(mappedBy: 'id_user', targetEntity: Publicaciones::class, orphanRemoval: true)]
     private Collection $publicaciones;
 
@@ -58,19 +58,23 @@ class User
 
     #[ORM\OneToMany(mappedBy: 'id_receptor', targetEntity: Chat::class, orphanRemoval: true)]
     private Collection $chatsReceptor;
+*/
+    #[ORM\OneToMany(mappedBy: 'id_usuario', targetEntity: ApiKey::class, orphanRemoval: true)]
+    private Collection $apiKeys;
 
-    #[ORM\OneToMany(mappedBy: 'id_user', targetEntity: Adopcion::class, orphanRemoval: true)]
-    private Collection $adopcions;
+    //#[ORM\OneToMany(mappedBy: 'id_user', targetEntity: Adopcion::class, orphanRemoval: true)]
+    //private Collection $adopciones;
+
 
     public function __construct()
     {
-        $this->publicaciones = new ArrayCollection();
-        $this->comentarios = new ArrayCollection();
-        $this->chats = new ArrayCollection();
-        $this->chatsReceptor = new ArrayCollection();
-        $this->adopcions = new ArrayCollection();
+        //$this->publicaciones = new ArrayCollection();
+        //$this->comentarios = new ArrayCollection();
+        //$this->chats = new ArrayCollection();
+        //$this->chatsReceptor = new ArrayCollection();
+        //$this->adopciones = new ArrayCollection();
+        $this->apiKeys = new ArrayCollection();
     }
-
     public function getId(): ?int
     {
         return $this->id;
@@ -172,21 +176,23 @@ class User
         return $this;
     }
 
-    public function getIdRol(): ?rol
+    public function getIdRol(): ?Rol
     {
         return $this->id_rol;
     }
 
-    public function setIdRol(?rol $id_rol): self
+    public function setIdRol(?Rol $id_rol): self
     {
         $this->id_rol = $id_rol;
 
         return $this;
     }
 
-    /**
-     * @return Collection<int, Publicaciones>
-     */
+ //  /**
+ //    * @return Collection<int, Publicaciones>
+ //    */
+
+    /*
     public function getPublicaciones(): Collection
     {
         return $this->publicaciones;
@@ -213,11 +219,12 @@ class User
 
         return $this;
     }
+    */
 
-    /**
-     * @return Collection<int, Comentarios>
-     */
-    public function getComentarios(): Collection
+   // /**
+   //  * @return Collection<int, Comentarios>
+   //  */
+    /*public function getComentarios(): Collection
     {
         return $this->comentarios;
     }
@@ -261,9 +268,11 @@ class User
         return $this;
     }
 
-    /**
-     * @return Collection<int, Chat>
-     */
+  //  /**
+  //   * @return Collection<int, Chat>
+  //   */
+
+    /*
     public function getChats(): Collection
     {
         return $this->chats;
@@ -292,6 +301,7 @@ class User
     }/**
      * @return Collection<int, Chat>
      */
+    /*
     public function getChatReceptor(): Collection
     {
         return $this->chatsReceptor;
@@ -319,18 +329,19 @@ class User
         return $this;
     }
 
-    /**
-     * @return Collection<int, Adopcion>
-     */
+   // /**
+    // * @return Collection<int, Adopcion>
+     //*/
+    /*
     public function getAdopcions(): Collection
     {
-        return $this->adopcions;
+        return $this->adopciones;
     }
 
     public function addAdopcion(Adopcion $adopcion): self
     {
-        if (!$this->adopcions->contains($adopcion)) {
-            $this->adopcions->add($adopcion);
+        if (!$this->adopciones->contains($adopcion)) {
+            $this->adopciones->add($adopcion);
             $adopcion->setIdUser($this);
         }
 
@@ -339,10 +350,55 @@ class User
 
     public function removeAdopcion(Adopcion $adopcion): self
     {
-        if ($this->adopcions->removeElement($adopcion)) {
+        if ($this->adopciones->removeElement($adopcion)) {
             // set the owning side to null (unless already changed)
             if ($adopcion->getIdUser() === $this) {
                 $adopcion->setIdUser(null);
+            }
+        }
+
+        return $this;
+    }
+    */
+
+    public function toString(): array
+    {
+        return [
+          'username' => $this->username,
+          'nombre' => $this->nombre,
+          'apellidos' => $this->apellidos,
+          'correo' => $this->email,
+          'password' => $this->password,
+          'telefono' => $this->telefono,
+          'protectora' => $this->protectora,
+          'rol' => $this->id_rol->getTipo()
+        ];
+    }
+
+    /**
+     * @return Collection<int, ApiKey>
+     */
+    public function getApiKeys(): Collection
+    {
+        return $this->apiKeys;
+    }
+
+    public function addApiKey(ApiKey $apiKey): self
+    {
+        if (!$this->apiKeys->contains($apiKey)) {
+            $this->apiKeys->add($apiKey);
+            $apiKey->setIdUsuario($this);
+        }
+
+        return $this;
+    }
+
+    public function removeApiKey(ApiKey $apiKey): self
+    {
+        if ($this->apiKeys->removeElement($apiKey)) {
+            // set the owning side to null (unless already changed)
+            if ($apiKey->getIdUsuario() === $this) {
+                $apiKey->setIdUsuario(null);
             }
         }
 

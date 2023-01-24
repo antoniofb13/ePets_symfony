@@ -13,7 +13,7 @@ class Adopcion
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'adopcions')]
+    #[ORM\ManyToOne(inversedBy: 'adopciones')]
     #[ORM\JoinColumn(nullable: false)]
     private ?user $id_user = null;
 
