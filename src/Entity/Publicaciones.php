@@ -16,9 +16,6 @@ class Publicaciones
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $imagen = null;
-
     #[ORM\Column(length: 255)]
     private ?string $cuerpo = null;
 
@@ -28,11 +25,14 @@ class Publicaciones
     #[ORM\Column(nullable: true)]
     private ?int $likes = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $imagen = null;
+
     #[ORM\ManyToOne(inversedBy: 'publicaciones')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?user $id_user = null;
+    private ?User $user = null;
 
-    #[ORM\OneToMany(mappedBy: 'id_pub', targetEntity: Comentarios::class, orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'publicacion', targetEntity: Comentarios::class, orphanRemoval: true)]
     private Collection $comentarios;
 
     public function __construct()
@@ -43,18 +43,6 @@ class Publicaciones
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getImagen(): ?string
-    {
-        return $this->imagen;
-    }
-
-    public function setImagen(?string $imagen): self
-    {
-        $this->imagen = $imagen;
-
-        return $this;
     }
 
     public function getCuerpo(): ?string
@@ -93,14 +81,26 @@ class Publicaciones
         return $this;
     }
 
-    public function getIdUser(): ?user
+    public function getImagen(): ?string
     {
-        return $this->id_user;
+        return $this->imagen;
     }
 
-    public function setIdUser(?user $id_user): self
+    public function setImagen(?string $imagen): self
     {
-        $this->id_user = $id_user;
+        $this->imagen = $imagen;
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): self
+    {
+        $this->user = $user;
 
         return $this;
     }
@@ -117,7 +117,7 @@ class Publicaciones
     {
         if (!$this->comentarios->contains($comentario)) {
             $this->comentarios->add($comentario);
-            $comentario->setIdPub($this);
+            $comentario->setPublicacion($this);
         }
 
         return $this;
@@ -127,8 +127,8 @@ class Publicaciones
     {
         if ($this->comentarios->removeElement($comentario)) {
             // set the owning side to null (unless already changed)
-            if ($comentario->getIdPub() === $this) {
-                $comentario->setIdPub(null);
+            if ($comentario->getPublicacion() === $this) {
+                $comentario->setPublicacion(null);
             }
         }
 

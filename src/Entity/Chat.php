@@ -18,15 +18,15 @@ class Chat
     private ?string $cuerpo = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $fecha_mensaje = null;
+    private ?\DateTimeInterface $fecha = null;
 
-    #[ORM\ManyToOne(inversedBy: 'chats')]
+    #[ORM\ManyToOne(inversedBy: 'chat_emisor')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?user $id_emisor = null;
+    private ?User $emisor = null;
 
-    #[ORM\ManyToOne(inversedBy: 'chatsReceptor')]
+    #[ORM\ManyToOne(inversedBy: 'chat_receptor')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?user $id_receptor = null;
+    private ?User $receptor = null;
 
     public function getId(): ?int
     {
@@ -45,38 +45,38 @@ class Chat
         return $this;
     }
 
-    public function getFechaMensaje(): ?\DateTimeInterface
+    public function getFecha(): ?\DateTimeInterface
     {
-        return $this->fecha_mensaje;
+        return $this->fecha;
     }
 
-    public function setFechaMensaje(\DateTimeInterface $fecha_mensaje): self
+    public function setFecha(\DateTimeInterface $fecha): self
     {
-        $this->fecha_mensaje = $fecha_mensaje;
+        $this->fecha = $fecha;
 
         return $this;
     }
 
-    public function getIdEmisor(): ?user
+    public function getEmisor(): ?User
     {
-        return $this->id_emisor;
+        return $this->emisor;
     }
 
-    public function setIdEmisor(?user $id_emisor): self
+    public function setEmisor(?User $emisor): self
     {
-        $this->id_emisor = $id_emisor;
+        $this->emisor = $emisor;
 
         return $this;
     }
 
-    public function getIdReceptor(): ?user
+    public function getReceptor(): ?User
     {
-        return $this->id_receptor;
+        return $this->receptor;
     }
 
-    public function setIdReceptor(?user $id_receptor): self
+    public function setReceptor(?User $receptor): self
     {
-        $this->id_receptor = $id_receptor;
+        $this->receptor = $receptor;
 
         return $this;
     }

@@ -15,37 +15,37 @@ class Adopcion
 
     #[ORM\ManyToOne(inversedBy: 'adopciones')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?user $id_user = null;
+    private ?User $user = null;
 
     #[ORM\OneToOne(inversedBy: 'adopcion', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
-    private ?animales $id_animal = null;
+    private ?Animales $animal = null;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getIdUser(): ?user
+    public function getUser(): ?User
     {
-        return $this->id_user;
+        return $this->user;
     }
 
-    public function setIdUser(?user $id_user): self
+    public function setUser(?User $user): self
     {
-        $this->id_user = $id_user;
+        $this->user = $user;
 
         return $this;
     }
 
-    public function getIdAnimal(): ?animales
+    public function getAnimal(): ?Animales
     {
-        return $this->id_animal;
+        return $this->animal;
     }
 
-    public function setIdAnimal(animales $id_animal): self
+    public function setAnimal(Animales $animal): self
     {
-        $this->id_animal = $id_animal;
+        $this->animal = $animal;
 
         return $this;
     }

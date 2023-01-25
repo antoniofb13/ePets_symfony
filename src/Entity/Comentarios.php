@@ -22,11 +22,11 @@ class Comentarios
 
     #[ORM\ManyToOne(inversedBy: 'comentarios')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?publicaciones $id_pub = null;
+    private ?Publicaciones $publicacion = null;
 
     #[ORM\ManyToOne(inversedBy: 'comentarios')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?user $id_user = null;
+    private ?User $user = null;
 
     public function getId(): ?int
     {
@@ -57,26 +57,26 @@ class Comentarios
         return $this;
     }
 
-    public function getIdPub(): ?publicaciones
+    public function getPublicacion(): ?Publicaciones
     {
-        return $this->id_pub;
+        return $this->publicacion;
     }
 
-    public function setIdPub(?publicaciones $id_pub): self
+    public function setPublicacion(?Publicaciones $publicacion): self
     {
-        $this->id_pub = $id_pub;
+        $this->publicacion = $publicacion;
 
         return $this;
     }
 
-    public function getIdUser(): ?user
+    public function getUser(): ?User
     {
-        return $this->id_user;
+        return $this->user;
     }
 
-    public function setIdUser(?user $id_user): self
+    public function setUser(?User $user): self
     {
-        $this->id_user = $id_user;
+        $this->user = $user;
 
         return $this;
     }

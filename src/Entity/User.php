@@ -43,38 +43,41 @@ class User
     #[ORM\ManyToOne(inversedBy: 'id_user')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Rol $id_rol = null;
-/*
-    #[ORM\OneToMany(mappedBy: 'id_user', targetEntity: Publicaciones::class, orphanRemoval: true)]
-    private Collection $publicaciones;
 
-    #[ORM\OneToMany(mappedBy: 'id_user', targetEntity: Comentarios::class, orphanRemoval: true)]
-    private Collection $comentarios;
-
-    #[ORM\OneToOne(mappedBy: 'id_user', cascade: ['persist', 'remove'])]
-    private ?DatosProtectora $datosProtectora = null;
-
-    #[ORM\OneToMany(mappedBy: 'id_emisor', targetEntity: Chat::class, orphanRemoval: true)]
-    private Collection $chats;
-
-    #[ORM\OneToMany(mappedBy: 'id_receptor', targetEntity: Chat::class, orphanRemoval: true)]
-    private Collection $chatsReceptor;
-*/
     #[ORM\OneToMany(mappedBy: 'id_usuario', targetEntity: ApiKey::class, orphanRemoval: true)]
     private Collection $apiKeys;
 
-    //#[ORM\OneToMany(mappedBy: 'id_user', targetEntity: Adopcion::class, orphanRemoval: true)]
-    //private Collection $adopciones;
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Publicaciones::class, orphanRemoval: true)]
+    private Collection $publicaciones;
+
+    #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
+    private ?Asociaciones $asociaciones = null;
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Comentarios::class, orphanRemoval: true)]
+    private Collection $comentarios;
+
+    #[ORM\OneToMany(mappedBy: 'emisor', targetEntity: Chat::class, orphanRemoval: true)]
+    private Collection $chat_emisor;
+
+    #[ORM\OneToMany(mappedBy: 'receptor', targetEntity: Chat::class, orphanRemoval: true)]
+    private Collection $chat_receptor;
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Adopcion::class, orphanRemoval: true)]
+    private Collection $adopciones;
+
+
 
 
     public function __construct()
     {
-        //$this->publicaciones = new ArrayCollection();
-        //$this->comentarios = new ArrayCollection();
-        //$this->chats = new ArrayCollection();
-        //$this->chatsReceptor = new ArrayCollection();
-        //$this->adopciones = new ArrayCollection();
         $this->apiKeys = new ArrayCollection();
+        $this->publicaciones = new ArrayCollection();
+        $this->comentarios = new ArrayCollection();
+        $this->chat_emisor = new ArrayCollection();
+        $this->chat_receptor = new ArrayCollection();
+        $this->adopciones = new ArrayCollection();
     }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -157,7 +160,7 @@ class User
         return $this->imagen;
     }
 
-    public function setImagen( string $imagen): self
+    public function setImagen(string $imagen): self
     {
         $this->imagen = $imagen;
 
@@ -188,190 +191,18 @@ class User
         return $this;
     }
 
- //  /**
- //    * @return Collection<int, Publicaciones>
- //    */
-
-    /*
-    public function getPublicaciones(): Collection
-    {
-        return $this->publicaciones;
-    }
-
-    public function addPublicaciones(Publicaciones $publicaciones): self
-    {
-        if (!$this->publicaciones->contains($publicaciones)) {
-            $this->publicaciones->add($publicaciones);
-            $publicaciones->setIdUser($this);
-        }
-
-        return $this;
-    }
-
-    public function removePublicaciones(Publicaciones $publicaciones): self
-    {
-        if ($this->publicaciones->removeElement($publicaciones)) {
-            // set the owning side to null (unless already changed)
-            if ($publicaciones->getIdUser() === $this) {
-                $publicaciones->setIdUser(null);
-            }
-        }
-
-        return $this;
-    }
-    */
-
-   // /**
-   //  * @return Collection<int, Comentarios>
-   //  */
-    /*public function getComentarios(): Collection
-    {
-        return $this->comentarios;
-    }
-
-    public function addComentario(Comentarios $comentario): self
-    {
-        if (!$this->comentarios->contains($comentario)) {
-            $this->comentarios->add($comentario);
-            $comentario->setIdUser($this);
-        }
-
-        return $this;
-    }
-
-    public function removeComentario(Comentarios $comentario): self
-    {
-        if ($this->comentarios->removeElement($comentario)) {
-            // set the owning side to null (unless already changed)
-            if ($comentario->getIdUser() === $this) {
-                $comentario->setIdUser(null);
-            }
-        }
-
-        return $this;
-    }
-
-    public function getDatosProtectora(): ?DatosProtectora
-    {
-        return $this->datosProtectora;
-    }
-
-    public function setDatosProtectora(DatosProtectora $datosProtectora): self
-    {
-        // set the owning side of the relation if necessary
-        if ($datosProtectora->getIdUser() !== $this) {
-            $datosProtectora->setIdUser($this);
-        }
-
-        $this->datosProtectora = $datosProtectora;
-
-        return $this;
-    }
-
-  //  /**
-  //   * @return Collection<int, Chat>
-  //   */
-
-    /*
-    public function getChats(): Collection
-    {
-        return $this->chats;
-    }
-
-    public function addChat(Chat $chat): self
-    {
-        if (!$this->chats->contains($chat)) {
-            $this->chats->add($chat);
-            $chat->setIdEmisor($this);
-        }
-
-        return $this;
-    }
-
-    public function removeChat(Chat $chat): self
-    {
-        if ($this->chats->removeElement($chat)) {
-            // set the owning side to null (unless already changed)
-            if ($chat->getIdEmisor() === $this) {
-                $chat->setIdEmisor(null);
-            }
-        }
-
-        return $this;
-    }/**
-     * @return Collection<int, Chat>
-     */
-    /*
-    public function getChatReceptor(): Collection
-    {
-        return $this->chatsReceptor;
-    }
-
-    public function addChatReceptor(Chat $chat): self
-    {
-        if (!$this->chats->contains($chat)) {
-            $this->chats->add($chat);
-            $chat->setIdReceptor($this);
-        }
-
-        return $this;
-    }
-
-    public function removeChatReceptor(Chat $chat): self
-    {
-        if ($this->chats->removeElement($chat)) {
-            // set the owning side to null (unless already changed)
-            if ($chat->getIdReceptor() === $this) {
-                $chat->setIdReceptor(null);
-            }
-        }
-
-        return $this;
-    }
-
-   // /**
-    // * @return Collection<int, Adopcion>
-     //*/
-    /*
-    public function getAdopcions(): Collection
-    {
-        return $this->adopciones;
-    }
-
-    public function addAdopcion(Adopcion $adopcion): self
-    {
-        if (!$this->adopciones->contains($adopcion)) {
-            $this->adopciones->add($adopcion);
-            $adopcion->setIdUser($this);
-        }
-
-        return $this;
-    }
-
-    public function removeAdopcion(Adopcion $adopcion): self
-    {
-        if ($this->adopciones->removeElement($adopcion)) {
-            // set the owning side to null (unless already changed)
-            if ($adopcion->getIdUser() === $this) {
-                $adopcion->setIdUser(null);
-            }
-        }
-
-        return $this;
-    }
-    */
 
     public function toString(): array
     {
         return [
-          'username' => $this->username,
-          'nombre' => $this->nombre,
-          'apellidos' => $this->apellidos,
-          'correo' => $this->email,
-          'password' => $this->password,
-          'telefono' => $this->telefono,
-          'protectora' => $this->protectora,
-          'rol' => $this->id_rol->getTipo()
+            'username' => $this->username,
+            'nombre' => $this->nombre,
+            'apellidos' => $this->apellidos,
+            'correo' => $this->email,
+            'password' => $this->password,
+            'telefono' => $this->telefono,
+            'protectora' => $this->protectora,
+            'rol' => $this->id_rol->getTipo()
         ];
     }
 
@@ -399,6 +230,173 @@ class User
             // set the owning side to null (unless already changed)
             if ($apiKey->getIdUsuario() === $this) {
                 $apiKey->setIdUsuario(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Publicaciones>
+     */
+    public function getPublicaciones(): Collection
+    {
+        return $this->publicaciones;
+    }
+
+    public function addPublicacione(Publicaciones $publicacione): self
+    {
+        if (!$this->publicaciones->contains($publicacione)) {
+            $this->publicaciones->add($publicacione);
+            $publicacione->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removePublicacione(Publicaciones $publicacione): self
+    {
+        if ($this->publicaciones->removeElement($publicacione)) {
+            // set the owning side to null (unless already changed)
+            if ($publicacione->getUser() === $this) {
+                $publicacione->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getAsociaciones(): ?Asociaciones
+    {
+        return $this->asociaciones;
+    }
+
+    public function setAsociaciones(Asociaciones $asociaciones): self
+    {
+        // set the owning side of the relation if necessary
+        if ($asociaciones->getUser() !== $this) {
+            $asociaciones->setUser($this);
+        }
+
+        $this->asociaciones = $asociaciones;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Comentarios>
+     */
+    public function getComentarios(): Collection
+    {
+        return $this->comentarios;
+    }
+
+    public function addComentario(Comentarios $comentario): self
+    {
+        if (!$this->comentarios->contains($comentario)) {
+            $this->comentarios->add($comentario);
+            $comentario->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeComentario(Comentarios $comentario): self
+    {
+        if ($this->comentarios->removeElement($comentario)) {
+            // set the owning side to null (unless already changed)
+            if ($comentario->getUser() === $this) {
+                $comentario->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Chat>
+     */
+    public function getChatEmisor(): Collection
+    {
+        return $this->chat_emisor;
+    }
+
+    public function addChatEmisor(Chat $chatEmisor): self
+    {
+        if (!$this->chat_emisor->contains($chatEmisor)) {
+            $this->chat_emisor->add($chatEmisor);
+            $chatEmisor->setEmisor($this);
+        }
+
+        return $this;
+    }
+
+    public function removeChatEmisor(Chat $chatEmisor): self
+    {
+        if ($this->chat_emisor->removeElement($chatEmisor)) {
+            // set the owning side to null (unless already changed)
+            if ($chatEmisor->getEmisor() === $this) {
+                $chatEmisor->setEmisor(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Chat>
+     */
+    public function getChatReceptor(): Collection
+    {
+        return $this->chat_receptor;
+    }
+
+    public function addChatReceptor(Chat $chatReceptor): self
+    {
+        if (!$this->chat_receptor->contains($chatReceptor)) {
+            $this->chat_receptor->add($chatReceptor);
+            $chatReceptor->setReceptor($this);
+        }
+
+        return $this;
+    }
+
+    public function removeChatReceptor(Chat $chatReceptor): self
+    {
+        if ($this->chat_receptor->removeElement($chatReceptor)) {
+            // set the owning side to null (unless already changed)
+            if ($chatReceptor->getReceptor() === $this) {
+                $chatReceptor->setReceptor(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Adopcion>
+     */
+    public function getAdopciones(): Collection
+    {
+        return $this->adopciones;
+    }
+
+    public function addAdopcione(Adopcion $adopcione): self
+    {
+        if (!$this->adopciones->contains($adopcione)) {
+            $this->adopciones->add($adopcione);
+            $adopcione->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAdopcione(Adopcion $adopcione): self
+    {
+        if ($this->adopciones->removeElement($adopcione)) {
+            // set the owning side to null (unless already changed)
+            if ($adopcione->getUser() === $this) {
+                $adopcione->setUser(null);
             }
         }
 

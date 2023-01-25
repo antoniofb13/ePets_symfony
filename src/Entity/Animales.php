@@ -13,20 +13,16 @@ class Animales
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 100)]
+    #[ORM\Column(length: 255)]
     private ?string $tipo = null;
 
-    #[ORM\Column(length: 100)]
+    #[ORM\Column(length: 255)]
     private ?string $raza = null;
 
-    #[ORM\Column(length: 30, nullable: true)]
+    #[ORM\Column(length: 255)]
     private ?string $tamano = null;
 
-    #[ORM\ManyToOne(inversedBy: 'animales')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?DatosProtectora $id_protectora = null;
-
-    #[ORM\OneToOne(mappedBy: 'id_animal', cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(mappedBy: 'animal', cascade: ['persist', 'remove'])]
     private ?Adopcion $adopcion = null;
 
     public function getId(): ?int
@@ -63,21 +59,9 @@ class Animales
         return $this->tamano;
     }
 
-    public function setTamano(?string $tamano): self
+    public function setTamano(string $tamano): self
     {
         $this->tamano = $tamano;
-
-        return $this;
-    }
-
-    public function getIdProtectora(): ?DatosProtectora
-    {
-        return $this->id_protectora;
-    }
-
-    public function setIdProtectora(?DatosProtectora $id_protectora): self
-    {
-        $this->id_protectora = $id_protectora;
 
         return $this;
     }
@@ -90,8 +74,8 @@ class Animales
     public function setAdopcion(Adopcion $adopcion): self
     {
         // set the owning side of the relation if necessary
-        if ($adopcion->getIdAnimal() !== $this) {
-            $adopcion->setIdAnimal($this);
+        if ($adopcion->getAnimal() !== $this) {
+            $adopcion->setAnimal($this);
         }
 
         $this->adopcion = $adopcion;
