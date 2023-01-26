@@ -8,6 +8,7 @@ use App\Repository\ApiKeyRepository;
 use App\Repository\UserRepository;
 use DateTime;
 use Doctrine\ORM\Mapping\Entity;
+use Symfony\Component\Serializer\Context\Normalizer\ObjectNormalizerContextBuilder;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
@@ -21,16 +22,25 @@ class Utilidades
 {
 
 
-    public function toJson($data):string
+    public function toJson($data, ?array  $groups ): string
     {
-        //Inicialización de serializador
+        $context = (new ObjectNormalizerContextBuilder())
+            ->withGroups("user_query")->toArray();
+
         $encoders = [new XmlEncoder(), new JsonEncoder()];
         $normalizers = [new ObjectNormalizer()];
         $serializer = new Serializer($normalizers, $encoders);
 
-        //Conversion a JSON
-        return $serializer->serialize($data, 'json');
 
+        if($groups != null){
+            //Conversion a JSON con groups
+            $json = $serializer->serialize($data, 'json', $context);
+        }else{
+            //Conversion a JSON
+            $json = $serializer->serialize($data, 'json');
+        }
+
+        return $json;
     }
 
     public function hashPassword($password):string

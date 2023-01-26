@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\ApiKey;
+use App\Entity\Asociaciones;
 use App\Entity\Rol;
 use App\Entity\User;
 use App\Repository\RolRepository;
@@ -65,5 +66,35 @@ class ApiRegisterController extends AbstractController
 
 
         return new JsonResponse("{ mensaje: Usuario creado correctamente }", 200, [], true);
+    }
+
+    #[Route('/usuario/saveProtectora', name: 'app_apiregister_saveprotectora', methods: ['POST'])]
+    public function saveProtectora(Request $request){
+
+        //CARGA DATOS
+        $em = $this-> doctrine->getManager();
+        $userRepository = $em->getRepository(User::class);
+        $asociacionRepository = $em->getRepository(Asociaciones::class);
+
+        //Obtener Json del body
+        $json  = json_decode($request->getContent(), true);
+
+        //CREO UNA NUEVA ASOCIACION
+        $asociacionNueva = new Asociaciones();
+
+        //BUSCAMOS EL USUARIO QUE VA A CREAR LA NUEVA ASOCIACION
+        $username = $json["username"];
+        $user = $userRepository->findOneBy(array("username"=>$username));
+        //$idUser = $user->getId();
+
+        //COMPLETAMOS DATOS DE LA ASOCIACION A TRAVES DEL JSON
+        $asociacionNueva->setUser($user);
+        $asociacionNueva->setDireccion($json["direccion"]);
+        $asociacionNueva->setCapacidad($json["capacidad"]);
+
+        //GUARDAR
+        $asociacionRepository->save($asociacionNueva, true);
+
+        return new JsonResponse("{ mensaje: Asociacion creada correctamente }", 200, [], true);
     }
 }

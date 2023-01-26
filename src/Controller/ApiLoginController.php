@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\DTO\ConvertersDTO;
+use App\DTO\UserDto;
 use App\Entity\ApiKey;
 use App\Entity\User;
 use App\Repository\UserRepository;
@@ -11,6 +13,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Doctrine\Persistence\ManagerRegistry;
+
 
 
 class ApiLoginController extends AbstractController
@@ -79,16 +82,19 @@ class ApiLoginController extends AbstractController
 
 
     #[Route('/usuario/list', name: 'app_usuario_listar', methods: ['GET'])]
-    public function listar(UserRepository $usuarioRepository, Utilidades $utilidades): JsonResponse
+    public function listar(UserRepository $usuarioRepository, Utilidades $utilidades, ConvertersDTO $convertersDTO): JsonResponse
     {
         $listUsuarios = $usuarioRepository->findAll();
 
-        $listJson = $utilidades->toJson($listUsuarios);
+        $listJson = array();
 
-        return $this->json([
-            'lista' => $listJson,
-        ]);
+        foreach ($listUsuarios as $user){
+            $userDto = $convertersDTO->userToDTO($user);
+            $json = $utilidades->toJson($userDto, null);
+            $listJson[] = json_decode($json);
+        }
 
+        return new JsonResponse($listJson, 200,[],false);
     }
 
 }
