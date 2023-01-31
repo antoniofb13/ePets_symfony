@@ -3,6 +3,7 @@
 namespace App\DTO;
 
 use App\Entity\Asociaciones;
+use App\Entity\Publicaciones;
 use App\Entity\User;
 
 class ConvertersDTO{
@@ -29,9 +30,23 @@ class ConvertersDTO{
     public function asociacionToDTO(Asociaciones $asociacion):AsociacionDTO{
         $asociacionDTO = new AsociacionDTO();
         $asociacionDTO->setId($asociacion->getId());
-        $asociacionDTO->setUser($asociacion->getUser());
+        $asociacionDTO->setUserDto($this->userToDTO($asociacion->getUser()));
         $asociacionDTO->setDireccion($asociacion->getDireccion());
         $asociacionDTO->setCapacidad($asociacion->getCapacidad());
         return $asociacionDTO;
+    }
+
+    /**
+     * @param Publicaciones $publicacion
+     */
+    public function publicacionDTO(Publicaciones $publicacion):PublicacionesDTO{
+        $publicacionDTO = new PublicacionesDTO();
+        $publicacionDTO->setId($publicacion->getId());
+        $publicacionDTO->setUser($this->userToDTO($publicacion->getUser()));
+        $publicacionDTO->setCuerpo($publicacion->getCuerpo());
+        $publicacionDTO->setFechaPu($publicacion->getFechaPub());
+        $publicacionDTO->setLikes($publicacion->getLikes());
+        $publicacion->setImagen($publicacion->getImagen());
+        return $publicacionDTO;
     }
 }

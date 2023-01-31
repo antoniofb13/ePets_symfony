@@ -13,6 +13,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Doctrine\Persistence\ManagerRegistry;
+use OpenApi\Attributes as OA;
+use Nelmio\ApiDocBundle\Annotation\Model;
 
 
 
@@ -81,7 +83,9 @@ class ApiLoginController extends AbstractController
     }
 
 
-    #[Route('/usuario/list', name: 'app_usuario_listar', methods: ['GET'])]
+    #[Route('api/usuario/list', name: 'app_usuario_listar', methods: ['GET'])]
+    #[OA\Tag(name: 'Listar')]
+    #[OA\Response(response:200,description:"successful operation" ,content: new OA\JsonContent(type: "array", items: new OA\Items(ref:new Model(type: UserDto::class))))]
     public function listar(UserRepository $usuarioRepository, Utilidades $utilidades, ConvertersDTO $convertersDTO): JsonResponse
     {
         $listUsuarios = $usuarioRepository->findAll();
