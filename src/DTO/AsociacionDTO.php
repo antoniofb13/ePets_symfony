@@ -2,13 +2,14 @@
 
 namespace App\DTO;
 
-use App\Entity\User;
+
 
 class AsociacionDTO{
     private int $id;
     private string $direccion;
     private int $capacidad;
-    private User $user;
+
+    private UserDto $userDto;
 
     public function __construct()
     {
@@ -63,20 +64,22 @@ class AsociacionDTO{
     }
 
     /**
-     * @return User
+     * @return UserDto
      */
-    public function getUser(): User
+    public function getUserDto(): UserDto
     {
-        return $this->user;
+        return $this->userDto;
     }
 
     /**
-     * @param User $user
+     * @param UserDto $userDto
      */
-    public function setUser(User $user): void
+    public function setUserDto(UserDto $userDto): void
     {
-        $this->user = $user;
+        $this->userDto = $userDto;
     }
+
+
 
 
 }
