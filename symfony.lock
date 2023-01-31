@@ -140,5 +140,8 @@
             "./config/packages/twig.yaml",
             "./templates/base.html.twig"
         ]
+    },
+    "twig/extra-bundle": {
+        "version": "v3.5.0"
     }
 }

@@ -2,8 +2,12 @@
 
 namespace App\DTO;
 
+use Symfony\Component\Serializer\Annotation\Ignore;
+use Symfony\Contracts\Service\Attribute\Required;
+
 class UserDto{
 
+    #[Ignore]
     private int $id;
     private string $username;
 
@@ -12,6 +16,8 @@ class UserDto{
     private string $email;
     private string $telefono;
     private string $password;
+
+    #[Ignore]
     private string $imagen;
     private bool $protectora;
     private string $rol;

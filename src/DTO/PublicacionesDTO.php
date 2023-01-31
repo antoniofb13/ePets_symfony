@@ -6,7 +6,7 @@ class PublicacionesDTO
 {
     private int $id;
     private string $cuerpo;
-    private \DateTimeInterface $fecha_pu;
+    private string $fecha_pu;
     private int $likes;
     private string $imagen;
     private UserDto $user;
@@ -44,20 +44,22 @@ class PublicacionesDTO
     }
 
     /**
-     * @return \DateTimeInterface
+     * @return string
      */
-    public function getFechaPu(): \DateTimeInterface
+    public function getFechaPu(): string
     {
         return $this->fecha_pu;
     }
 
     /**
-     * @param \DateTimeInterface $fecha_pu
+     * @param string $fecha_pu
      */
-    public function setFechaPu(\DateTimeInterface $fecha_pu): void
+    public function setFechaPu(string $fecha_pu): void
     {
         $this->fecha_pu = $fecha_pu;
     }
+
+
 
     /**
      * @return int

@@ -8,6 +8,7 @@ use App\Entity\User;
 use App\Repository\AsociacionesRepository;
 use App\Repository\PublicacionesRepository;
 use App\Utilities\Utilidades;
+use DateTime;
 use DateTimeImmutable;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -49,14 +50,14 @@ class PublicacionController extends AbstractController
         //$idUser = $user->getId();
 
         //OBTENGO LA FECHA ACTUAL
-        $date = new DateTimeImmutable();
-        echo $date->getTimestamp();
+        $fechaActual = date("Y-m-d H:i:s");
+        $fecha = DateTime::createFromFormat('Y-m-d H:i:s', $fechaActual);
 
 
         //COMPLETAMOS DATOS DE LA ASOCIACION A TRAVES DEL JSON
         $publicacionNueva->setUser($user);
         $publicacionNueva->setCuerpo($json["cuerpo"]);
-        $publicacionNueva->setFechaPub($date);
+        $publicacionNueva->setFechaPub($fecha);
 
         //GUARDAR
         $publicacionRepository->save($publicacionNueva, true);
