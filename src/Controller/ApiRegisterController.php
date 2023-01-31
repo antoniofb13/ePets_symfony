@@ -2,6 +2,9 @@
 
 namespace App\Controller;
 
+use App\DTO\AsociacionDTO;
+use App\DTO\SaveAsociacionDTO;
+use App\DTO\UserDto;
 use App\Entity\ApiKey;
 use App\Entity\Asociaciones;
 use App\Entity\Rol;
@@ -13,7 +16,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Doctrine\Persistence\ManagerRegistry;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use OpenApi\Attributes as OA;
 
 
 class ApiRegisterController extends AbstractController
@@ -21,7 +25,7 @@ class ApiRegisterController extends AbstractController
 
     public function __construct(private ManagerRegistry $doctrine) {}
 
-    #[Route('/api/register', name: 'app_api_register')]
+    #[Route('/register', name: 'app_api_register')]
     public function index(): JsonResponse
     {
         return $this->json([
@@ -30,7 +34,11 @@ class ApiRegisterController extends AbstractController
         ]);
     }
 
-    #[Route('/usuario/save', name: 'app_usuario_crear', methods: ['POST'])]
+    #[Route('api/usuario/save', name: 'app_usuario_crear', methods: ['POST'])]
+    #[OA\Tag(name: 'Registro')]
+    #[OA\RequestBody(description: "Dto de Registro", content: new OA\JsonContent(ref: new Model(type: UserDto::class)))]
+    #[OA\Response(response: 200,description: "Usuario creado correctamente")]
+    #[OA\Response(response: 101,description: "No ha indicado usario y contraseña")]
     public function save(ManagerRegistry $managerRegistry, Request $request, Utilidades $utilidades): JsonResponse
     {
         //CARGA DATOS
@@ -51,7 +59,7 @@ class ApiRegisterController extends AbstractController
         $usuarioNuevo->setUsername($json['username']);
         $usuarioNuevo->setTelefono($json['telefono']);
         $usuarioNuevo->setProtectora($json['protectora']);
-        $rolname = $json['id_rol'];
+        $rolname = $json['rol'];
         if($rolname == null){
             $roluser = $rolRepository->find(1);
             $usuarioNuevo->setIdRol($roluser);
@@ -68,7 +76,9 @@ class ApiRegisterController extends AbstractController
         return new JsonResponse("{ mensaje: Usuario creado correctamente }", 200, [], true);
     }
 
-    #[Route('/usuario/saveProtectora', name: 'app_apiregister_saveprotectora', methods: ['POST'])]
+    #[Route('api/usuario/saveProtectora', name: 'app_apiregister_saveprotectora', methods: ['POST'])]
+    #[OA\Tag(name: 'Registro')]
+    #[OA\RequestBody(description: "Dto de Registro de Protectora", content: new OA\JsonContent(ref: new Model(type: SaveAsociacionDTO::class)))]
     public function saveProtectora(Request $request){
 
         //CARGA DATOS

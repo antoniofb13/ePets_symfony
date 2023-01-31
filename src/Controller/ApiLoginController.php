@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\DTO\ConvertersDTO;
+use App\DTO\LoginDTO;
 use App\DTO\UserDto;
 use App\Entity\ApiKey;
 use App\Entity\User;
@@ -29,6 +30,8 @@ class ApiLoginController extends AbstractController
     }
 
     #[Route('/api/login', name: 'app_api_login', methods: ['POST'])]
+    #[OA\Tag(name: 'Login')]
+    #[OA\RequestBody(description: "Dto de autentificación", content: new OA\JsonContent(ref: new Model(type: LoginDTO::class)))]
     public function index(Request $request, Utilidades $utilidades): JsonResponse
     {
         //CARGAR REPOSITORIOS

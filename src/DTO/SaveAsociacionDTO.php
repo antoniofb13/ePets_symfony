@@ -2,17 +2,15 @@
 
 namespace App\DTO;
 
-
-
 use Symfony\Component\Serializer\Annotation\Ignore;
 
-class AsociacionDTO{
+class SaveAsociacionDTO{
     #[Ignore]
     private int $id;
     private string $direccion;
     private int $capacidad;
 
-    private UserDto $userDto;
+    private string $username;
 
     public function __construct()
     {
@@ -67,22 +65,21 @@ class AsociacionDTO{
     }
 
     /**
-     * @return UserDto
+     * @return string
      */
-    public function getUserDto(): UserDto
+    public function getUsername(): string
     {
-        return $this->userDto;
+        return $this->username;
     }
 
     /**
-     * @param UserDto $userDto
+     * @param string $username
      */
-    public function setUserDto(UserDto $userDto): void
+    public function setUsername(string $username): void
     {
-        $this->userDto = $userDto;
+        $this->username = $username;
     }
 
 
-
-
 }
+

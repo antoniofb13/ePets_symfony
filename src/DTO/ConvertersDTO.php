@@ -44,7 +44,7 @@ class ConvertersDTO{
         $publicacionDTO->setId($publicacion->getId());
         $publicacionDTO->setUser($this->userToDTO($publicacion->getUser()));
         $publicacionDTO->setCuerpo($publicacion->getCuerpo());
-        $publicacionDTO->setFechaPu($publicacion->getFechaPub());
+        $publicacionDTO->setFechaPu($publicacion->getFechaPub()->format("d/m/Y H:i"));
         $publicacionDTO->setLikes($publicacion->getLikes());
         $publicacion->setImagen($publicacion->getImagen());
         return $publicacionDTO;
