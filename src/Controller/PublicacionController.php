@@ -2,7 +2,9 @@
 
 namespace App\Controller;
 
+use App\DTO\AsociacionDTO;
 use App\DTO\ConvertersDTO;
+use App\DTO\PublicacionesDTO;
 use App\Entity\Publicaciones;
 use App\Entity\User;
 use App\Repository\AsociacionesRepository;
@@ -11,10 +13,12 @@ use App\Utilities\Utilidades;
 use DateTime;
 use DateTimeImmutable;
 use Doctrine\Persistence\ManagerRegistry;
+use Nelmio\ApiDocBundle\Annotation\Model;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use OpenApi\Attributes as OA;
 
 class PublicacionController extends AbstractController
 {
@@ -65,7 +69,10 @@ class PublicacionController extends AbstractController
         return new JsonResponse("{ mensaje: Publicacion creada correctamente }", 200, [], true);
     }
 
-    #[Route('/publicacion/list', name: 'app_publicacion_listarpublicaciones', methods: ['GET'])]
+    #[Route('api/publicacion/list', name: 'app_publicacion_listarpublicaciones', methods: ['GET'])]
+    #[OA\Tag(name: 'Listar')]
+    #[OA\Response(response:200,description:"successful operation" ,content: new OA\JsonContent(type: "array", items: new OA\Items(ref:new Model(type: PublicacionesDTO::class))))]
+    #[OA\Parameter(name: 'api_key', description: "Api de autentificación", in: "query", required: true, schema: new OA\Schema(type: "string") )]
     public function listarPublicaciones(PublicacionesRepository $publicacionesRepository, Utilidades $utilidades, ConvertersDTO $convertersDTO): JsonResponse
     {
         $listPublicaciones = $publicacionesRepository->findAll();
