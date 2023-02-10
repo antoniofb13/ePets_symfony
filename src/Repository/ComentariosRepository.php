@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Comentarios;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -38,6 +39,19 @@ class ComentariosRepository extends ServiceEntityRepository
             $this->getEntityManager()->flush();
         }
     }
+
+    /**
+     * @throws NonUniqueResultException
+     */
+    public function buscarComentarioPorPublicacion($publicacion_id):?Comentarios{
+        return $this->createQueryBuilder('c')
+            ->andWhere('c.publicacion = :val')
+            ->setParameter('val', $publicacion_id)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+
 
 //    /**
 //     * @return Comentarios[] Returns an array of Comentarios objects

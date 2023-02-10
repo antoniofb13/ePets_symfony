@@ -12,10 +12,28 @@ class AsociacionDTO{
     private string $direccion;
     private int $capacidad;
 
+    private string $logo;
+
     private UserDto $userDto;
 
     public function __construct()
     {
+    }
+
+    /**
+     * @return string
+     */
+    public function getLogo(): string
+    {
+        return $this->logo;
+    }
+
+    /**
+     * @param string $logo
+     */
+    public function setLogo(string $logo): void
+    {
+        $this->logo = $logo;
     }
 
     /**

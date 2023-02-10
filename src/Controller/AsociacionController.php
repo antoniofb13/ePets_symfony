@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Controller;
-
+header("Access-Control-Allow-Origin: *");
 use App\DTO\AsociacionDTO;
 use App\DTO\ConvertersDTO;
 use App\DTO\SaveAsociacionDTO;
@@ -18,6 +18,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use OpenApi\Attributes as OA;
 use Doctrine\Persistence\ManagerRegistry;
 
+
 class AsociacionController extends AbstractController
 {
 
@@ -28,30 +29,22 @@ class AsociacionController extends AbstractController
         $this-> doctrine = $managerRegistry;
     }
 
-    #[Route('/asociacion', name: 'app_asociacion')]
-    public function index(): JsonResponse
-    {
-        return $this->json([
-            'message' => 'Welcome to your new controller!',
-            'path' => 'src/Controller/AsociacionController.php',
-        ]);
-    }
 
-    #[Route('api/asociacion/list', name: 'app_asociacion_listar', methods: ['GET'])]
+    #[Route('/api/asociacion/list', name: 'app_asociacion_listar', methods: ['GET'])]
     #[OA\Tag(name: 'Listar')]
-    #[OA\Response(response:200,description:"successful operation" ,content: new OA\JsonContent(type: "array", items: new OA\Items(ref:new Model(type: AsociacionDTO::class))))]
-    #[OA\Parameter(name: 'api_key', description: "Api de autentificación", in: "query", required: true, schema: new OA\Schema(type: "string") )]
+    //#[OA\Response(response:200,description:"successful operation" ,content: new OA\JsonContent(type: "array", items: new OA\Items(ref:new Model(type: AsociacionDTO::class))))]
+  //  #[OA\Parameter(name: 'api_key', description: "Api de autentificación", in: "query", required: true, schema: new OA\Schema(type: "string") )]
     public function listarAsociaciones(AsociacionesRepository $asociacionesRepository, Utilidades $utilidades, ConvertersDTO $convertersDTO, Request $request): JsonResponse
     {
 
         $em = $this-> doctrine->getManager();
         $userRepository = $em->getRepository(User::class);
-        $apikeyRepository = $em->getRepository(ApiKey::class);
+     //   $apikeyRepository = $em->getRepository(ApiKey::class);
 
-        $apikey = $request->query->get("api_key");
-        $compruebaAcceso = $utilidades->esApiKeyValida($apikey, "ROLE_USER", $apikeyRepository, $userRepository);
+       // $apikey = $request->query->get("api_key");
+       // $compruebaAcceso = $utilidades->esApiKeyValida($apikey, "ROLE_USER", $apikeyRepository, $userRepository);
 
-        if($compruebaAcceso){
+        //if($compruebaAcceso){
             $listAsociaciones = $asociacionesRepository->findAll();
 
             $listJson = array();
@@ -63,11 +56,11 @@ class AsociacionController extends AbstractController
             }
 
             return new JsonResponse($listJson, 200,[],false);
-        }else{
-            return $this->json([
-                'message' => "No tiene permiso",
-            ]);
-        }
+        //}else{
+          //  return $this->json([
+            //    'message' => "No tiene permiso",
+            //]);
+        //}
 
     }
 }

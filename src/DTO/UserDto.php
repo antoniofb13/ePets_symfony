@@ -17,7 +17,7 @@ class UserDto{
     private string $telefono;
     private string $password;
 
-    #[Ignore]
+
     private string $imagen;
     private bool $protectora;
     private string $rol;

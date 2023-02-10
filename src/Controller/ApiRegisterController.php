@@ -18,6 +18,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Doctrine\Persistence\ManagerRegistry;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Attributes as OA;
+use function Symfony\Component\VarDumper\Dumper\esc;
 
 
 class ApiRegisterController extends AbstractController
@@ -59,6 +60,12 @@ class ApiRegisterController extends AbstractController
         $usuarioNuevo->setUsername($json['username']);
         $usuarioNuevo->setTelefono($json['telefono']);
         $usuarioNuevo->setProtectora($json['protectora']);
+        $imagen = $json['imagen'];
+        if($imagen==null or $imagen=="string"){
+            $usuarioNuevo->setImagen("https://th.bing.com/th/id/R.6b0022312d41080436c52da571d5c697?rik=ejx13G9ZroRrcg&riu=http%3a%2f%2fpluspng.com%2fimg-png%2fuser-png-icon-young-user-icon-2400.png&ehk=NNF6zZUBr0n5i%2fx0Bh3AMRDRDrzslPXB0ANabkkPyv0%3d&risl=&pid=ImgRaw&r=0");
+        }else{
+            $usuarioNuevo->setImagen($json['imagen']);
+        }
         $rolname = $json['rol'];
         if($rolname == null){
             $roluser = $rolRepository->find(1);
@@ -101,6 +108,12 @@ class ApiRegisterController extends AbstractController
         $asociacionNueva->setUser($user);
         $asociacionNueva->setDireccion($json["direccion"]);
         $asociacionNueva->setCapacidad($json["capacidad"]);
+        $logo = $json['logo'];
+        if($logo==null or $logo=="string"){
+            $asociacionNueva->setLogo("https://th.bing.com/th/id/R.e794423499a66e3f7088b05e8f86ec60?rik=YUSvUmB0Q2aURw&pid=ImgRaw&r=0");
+        }else{
+            $asociacionNueva->setLogo($json['logo']);
+        }
 
         //GUARDAR
         $asociacionRepository->save($asociacionNueva, true);
