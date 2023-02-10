@@ -3,22 +3,21 @@
 namespace App\DTO;
 
 use Doctrine\Common\Collections\Collection;
-use phpDocumentor\Reflection\Types\Boolean;
-use Symfony\Component\Serializer\Annotation\Ignore;
 
-class PublicacionesDTO
-{
+class ListPublicacionesDTO{
+
     private int $id;
     private string $cuerpo;
     private string $fecha_pu;
     private int $likes;
     private string $imagen;
 
-    private UserDto $user;
+    private string $username;
 
-    private ComentarioListarDTO $comentarios;
+    private string $comentario;
 
-    private ?bool $estado;
+    private string $comentarioUsername;
+
 
     /**
      * @return int
@@ -68,8 +67,6 @@ class PublicacionesDTO
         $this->fecha_pu = $fecha_pu;
     }
 
-
-
     /**
      * @return int
      */
@@ -103,53 +100,54 @@ class PublicacionesDTO
     }
 
     /**
-     * @return UserDto
+     * @return string
      */
-    public function getUser(): UserDto
+    public function getUsername(): string
     {
-        return $this->user;
+        return $this->username;
     }
 
     /**
-     * @param UserDto $user
+     * @param string $username
      */
-    public function setUser(UserDto $user): void
+    public function setUsername(string $username): void
     {
-        $this->user = $user;
+        $this->username = $username;
     }
 
     /**
-     * @return ComentarioListarDTO
+     * @return string
      */
-    public function getComentarios(): ComentarioListarDTO
+    public function getComentario(): string
     {
-        return $this->comentarios;
+        return $this->comentario;
     }
 
     /**
-     * @param ComentarioListarDTO $comentarios
+     * @param string $comentario
      */
-    public function setComentarios(ComentarioListarDTO $comentarios): void
+    public function setComentario(string $comentario): void
     {
-        $this->comentarios = $comentarios;
+        $this->comentario = $comentario;
+    }
+
+
+
+    /**
+     * @return string
+     */
+    public function getComentarioUsername(): string
+    {
+        return $this->comentarioUsername;
     }
 
     /**
-     * @return bool|null
+     * @param string $comentarioUsername
      */
-    public function getEstado(): ?bool
+    public function setComentarioUsername(string $comentarioUsername): void
     {
-        return $this->estado;
+        $this->comentarioUsername = $comentarioUsername;
     }
-
-    /**
-     * @param bool|null $estado
-     */
-    public function setEstado(?bool $estado): void
-    {
-        $this->estado = $estado;
-    }
-
 
 
 

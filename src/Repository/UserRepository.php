@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Query\ResultSetMapping;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -54,6 +55,17 @@ class UserRepository extends ServiceEntityRepository
 //        ;
 //    }
 
+    public function findLikeUsername($username): array{
+        $rsm = new ResultSetMapping();
+
+        $query= $this->getEntityManager()->createNativeQuery('SELECT * from `User` WHERE `username` like %?%',$rsm);
+        $query->setParameter(1, $username);
+
+        $user[] = $query->getResult();
+
+        return $user;
+    }
+
 //    public function findOneBySomeField($value): ?User
 //    {
 //        return $this->createQueryBuilder('u')
@@ -63,4 +75,6 @@ class UserRepository extends ServiceEntityRepository
 //            ->getOneOrNullResult()
 //        ;
 //    }
+
+
 }

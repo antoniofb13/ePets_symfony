@@ -39,6 +39,32 @@ class PublicacionesRepository extends ServiceEntityRepository
         }
     }
 
+    /**
+     * @return Publicaciones[]
+     */
+    public function buscarPorEstado(): array
+    {
+        return $this->createQueryBuilder('p')
+            ->andWhere('p.estado = false')
+            ->orderBy('p.fecha_pub', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @return Publicaciones[]
+     */
+    public function buscarPorEstadoCerradoAndUser($idUser): array
+    {
+        return $this->createQueryBuilder('p')
+            ->andWhere('p.estado = true')
+            ->andWhere('p.user = :val')
+            ->setParameter('val', $idUser)
+            ->orderBy('p.fecha_pub', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
 //    /**
 //     * @return Publicaciones[] Returns an array of Publicaciones objects
 //     */
