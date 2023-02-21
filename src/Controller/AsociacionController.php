@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Controller;
-header("Access-Control-Allow-Origin: *");
 use App\DTO\AsociacionDTO;
 use App\DTO\ConvertersDTO;
 use App\DTO\SaveAsociacionDTO;

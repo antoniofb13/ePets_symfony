@@ -1,9 +1,7 @@
 <?php
 
 namespace App\Controller;
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
-header("Allow: GET, POST, OPTIONS, PUT, DELETE");
+
 use App\DTO\ConvertersDTO;
 use App\DTO\LoginDTO;
 use App\DTO\UserDto;

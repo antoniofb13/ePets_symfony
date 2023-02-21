@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Controller;
-header("Access-Control-Allow-Origin: *");
 use App\DTO\CambiarEstadoPubDTO;
 use App\DTO\ConvertersDTO;
 use App\DTO\PublicacionesDTO;
@@ -60,6 +59,10 @@ class PublicacionController extends AbstractController
         $publicacionNueva->setCuerpo($json["cuerpo"]);
         $publicacionNueva->setFechaPub($fecha);
         $publicacionNueva->setLikes(0);
+        $publicacionNueva->setEstado(0);
+        if ($json['imagen']!= null) {
+            $publicacionNueva->setImagen($json['imagen']);
+        }
 
         //GUARDAR
         $publicacionRepository->save($publicacionNueva, true);
