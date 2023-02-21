@@ -19,6 +19,7 @@ class UserDto{
 
 
     private string $imagen;
+    #[Ignore]
     private bool $protectora;
     private string $rol;
 
