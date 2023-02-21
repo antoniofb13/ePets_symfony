@@ -5,7 +5,10 @@ namespace App\DTO;
 use App\Entity\Asociaciones;
 use App\Entity\Comentarios;
 use App\Entity\Publicaciones;
+use App\Entity\Tags;
 use App\Entity\User;
+use App\Utilities\Utilidades;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 
 class ConvertersDTO
@@ -48,6 +51,7 @@ class ConvertersDTO
      */
     public function publicacionDTO(Publicaciones $publicacion): PublicacionesDTO
     {
+        $utilidades = new Utilidades();
         $publicacionDTO = new PublicacionesDTO();
         $publicacionDTO->setId($publicacion->getId());
         $publicacionDTO->setUser($this->userToDTO($publicacion->getUser()));
@@ -55,44 +59,30 @@ class ConvertersDTO
         $publicacionDTO->setFechaPu($publicacion->getFechaPub()->format("d/m/Y H:i"));
         $publicacionDTO->setLikes($publicacion->getLikes());
         $publicacionDTO->setEstado($publicacion->isEstado());
-        //if ($publicacion->getComentarios() != null) {
-        //    $publicacionDTO->setComentarios($this->comentariosListToDTO($publicacion->getComentarios()));
-        //}
-        //$publicacion->setImagen($publicacion->getImagen());
+
+        $tags = new ArrayCollection();
+        foreach ($publicacion->getTags() as $tag){
+            $tagDTO = new TagsDTO();
+            $tagDTO->setId($tag->getId());
+            $tagDTO->setNombre($tag->getNombre());
+            $tags[] = $tagDTO;
+        }
+        $publicacionDTO->setTags($tags);
+
+        $comentarios = new ArrayCollection();
+        foreach ($publicacion->getComentarios() as $comen){
+            $comentarioDTO = new ComentariosDTO();
+            $comentarioDTO->setId($comen->getId());
+            $comentarioDTO-> setUser($this->userToDTO($comen->getUser()));
+            $comentarioDTO->setMensaje($comen->getMensaje());
+            $comentarioDTO->setFechaCom($comen->getFechaCom()->format("d/m/Y H:i"));
+            $comentarios[] = $comentarioDTO;
+        }
+        $publicacionDTO->setComentarios($comentarios);
+
         return $publicacionDTO;
     }
 
-    /**
-     * @param Publicaciones $publicacion
-     */
-    public function publicacionListDTO(Publicaciones $publicacion, Comentarios $comentarios): ListPublicacionesDTO
-    {
-        $listPublicacionDTO = new ListPublicacionesDTO();
-        $listPublicacionDTO->setId($publicacion->getId());
-        $listPublicacionDTO->setUsername($publicacion->getUser()->getUsername());
-        $listPublicacionDTO->setCuerpo($publicacion->getCuerpo());
-        $listPublicacionDTO->setFechaPu($publicacion->getFechaPub()->format("d/m/Y H:i"));
-        $listPublicacionDTO->setLikes($publicacion->getLikes());
-        $listPublicacionDTO->setComentario($comentarios->getMensaje());
-        $listPublicacionDTO->setComentarioUsername($comentarios->getUser()->getUsername());
-        //$publicacion->setImagen($publicacion->getImagen());
-        return $listPublicacionDTO;
-    }
-
-    /**
-     * @param Publicaciones $publicacion
-     */
-    public function publicacionListNoComentDTO(Publicaciones $publicacion): ListPublicacionesDTO
-    {
-        $listPublicacionDTO = new ListPublicacionesDTO();
-        $listPublicacionDTO->setId($publicacion->getId());
-        $listPublicacionDTO->setUsername($publicacion->getUser()->getUsername());
-        $listPublicacionDTO->setCuerpo($publicacion->getCuerpo());
-        $listPublicacionDTO->setFechaPu($publicacion->getFechaPub()->format("d/m/Y H:i"));
-        $listPublicacionDTO->setLikes($publicacion->getLikes());
-        //$publicacion->setImagen($publicacion->getImagen());
-        return $listPublicacionDTO;
-    }
 
     /**
      * @param Comentarios $comentarios
@@ -114,17 +104,15 @@ class ConvertersDTO
         return $lista;
     }
 
-    /**
-     * @param Comentarios $comentarios
-     */
-    public function comentariosListToDTO(Comentarios $comentarios): ComentarioListarDTO
-    {
-        $comentarioList = new ComentarioListarDTO();
-        $comentarioList->setId($comentarios->getId());
-        $comentarioList->setUsername($comentarios->getUser()->getUsername());
-        $comentarioList->setMensaje($comentarios->getMensaje());
-        $comentarioList->setFechaCom($comentarios->getFechaCom()->format("d/m/Y H:i"));
-        return $comentarioList;
-    }
 
+    /**
+     * @param Tags $tags
+     */
+    public function tagsToDTO(Tags $tags): TagsDTO
+    {
+        $tagDTO = new TagsDTO();
+        $tagDTO->setId($tags->getId());
+        $tagDTO->setNombre($tags->getNombre());
+        return $tagDTO;
+    }
 }

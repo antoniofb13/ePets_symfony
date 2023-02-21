@@ -24,7 +24,9 @@ use function Symfony\Component\VarDumper\Dumper\esc;
 class ApiRegisterController extends AbstractController
 {
 
-    public function __construct(private ManagerRegistry $doctrine) {}
+    public function __construct(private ManagerRegistry $doctrine)
+    {
+    }
 
     #[Route('/register', name: 'app_api_register')]
     public function index(): JsonResponse
@@ -38,18 +40,18 @@ class ApiRegisterController extends AbstractController
     #[Route('api/usuario/save', name: 'app_usuario_crear', methods: ['POST'])]
     #[OA\Tag(name: 'Registro')]
     #[OA\RequestBody(description: "Dto de Registro", content: new OA\JsonContent(ref: new Model(type: UserDto::class)))]
-    #[OA\Response(response: 200,description: "Usuario creado correctamente")]
-    #[OA\Response(response: 101,description: "No ha indicado usario y contraseña")]
+    #[OA\Response(response: 200, description: "Usuario creado correctamente")]
+    #[OA\Response(response: 101, description: "No ha indicado usario y contraseña")]
     public function save(ManagerRegistry $managerRegistry, Request $request, Utilidades $utilidades): JsonResponse
     {
         //CARGA DATOS
-        $em = $this-> doctrine->getManager();
+        $em = $this->doctrine->getManager();
         $userRepository = $em->getRepository(User::class);
         $rolRepository = $em->getRepository(Rol::class);
         $apiKeyRepository = $em->getRepository(ApiKey::class);
 
         //Obtener Json del body
-        $json  = json_decode($request->getContent(), true);
+        $json = json_decode($request->getContent(), true);
 
         //CREAR NUEVO USUARIO A PARTIR DEL JSON
         $usuarioNuevo = new User();
@@ -59,19 +61,19 @@ class ApiRegisterController extends AbstractController
         $usuarioNuevo->setApellidos($json['apellidos']);
         $usuarioNuevo->setUsername($json['username']);
         $usuarioNuevo->setTelefono($json['telefono']);
-        $usuarioNuevo->setProtectora($json['protectora']);
+        $usuarioNuevo->setProtectora(false);
         $imagen = $json['imagen'];
-        if($imagen==null or $imagen=="string"){
+        if ($imagen == null or $imagen == "string") {
             $usuarioNuevo->setImagen("https://th.bing.com/th/id/R.6b0022312d41080436c52da571d5c697?rik=ejx13G9ZroRrcg&riu=http%3a%2f%2fpluspng.com%2fimg-png%2fuser-png-icon-young-user-icon-2400.png&ehk=NNF6zZUBr0n5i%2fx0Bh3AMRDRDrzslPXB0ANabkkPyv0%3d&risl=&pid=ImgRaw&r=0");
-        }else{
+        } else {
             $usuarioNuevo->setImagen($json['imagen']);
         }
         $rolname = $json['rol'];
-        if($rolname == null){
+        if ($rolname == null) {
             $roluser = $rolRepository->find(1);
             $usuarioNuevo->setIdRol($roluser);
         }
-        $usuarioNuevo->setIdRol($managerRegistry->getRepository(Rol::class)->findOneBy(array("tipo"=>$rolname)));
+        $usuarioNuevo->setIdRol($managerRegistry->getRepository(Rol::class)->findOneBy(array("tipo" => $rolname)));
 
         //GUARDAR
         $userRepository->save($usuarioNuevo, true);
@@ -80,28 +82,31 @@ class ApiRegisterController extends AbstractController
         $utilidades->generateApiToken($usuarioNuevo, $apiKeyRepository);
 
 
-        return new JsonResponse("{ mensaje: Usuario creado correctamente }", 200, [], true);
+        return $this->json([
+            'message' => "Usuario creado correctamente",
+        ]);
     }
 
     #[Route('api/usuario/saveProtectora', name: 'app_apiregister_saveprotectora', methods: ['POST'])]
     #[OA\Tag(name: 'Registro')]
     #[OA\RequestBody(description: "Dto de Registro de Protectora", content: new OA\JsonContent(ref: new Model(type: SaveAsociacionDTO::class)))]
-    public function saveProtectora(Request $request){
+    public function saveProtectora(Request $request)
+    {
 
         //CARGA DATOS
-        $em = $this-> doctrine->getManager();
+        $em = $this->doctrine->getManager();
         $userRepository = $em->getRepository(User::class);
         $asociacionRepository = $em->getRepository(Asociaciones::class);
 
         //Obtener Json del body
-        $json  = json_decode($request->getContent(), true);
+        $json = json_decode($request->getContent(), true);
 
         //CREO UNA NUEVA ASOCIACION
         $asociacionNueva = new Asociaciones();
 
         //BUSCAMOS EL USUARIO QUE VA A CREAR LA NUEVA ASOCIACION
         $username = $json["username"];
-        $user = $userRepository->findOneBy(array("username"=>$username));
+        $user = $userRepository->findOneBy(array("username" => $username));
         //$idUser = $user->getId();
 
         //COMPLETAMOS DATOS DE LA ASOCIACION A TRAVES DEL JSON
@@ -109,9 +114,9 @@ class ApiRegisterController extends AbstractController
         $asociacionNueva->setDireccion($json["direccion"]);
         $asociacionNueva->setCapacidad($json["capacidad"]);
         $logo = $json['logo'];
-        if($logo==null or $logo=="string"){
+        if ($logo == null or $logo == "string") {
             $asociacionNueva->setLogo("https://th.bing.com/th/id/R.e794423499a66e3f7088b05e8f86ec60?rik=YUSvUmB0Q2aURw&pid=ImgRaw&r=0");
-        }else{
+        } else {
             $asociacionNueva->setLogo($json['logo']);
         }
 

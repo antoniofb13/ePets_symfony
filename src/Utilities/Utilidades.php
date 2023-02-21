@@ -7,6 +7,8 @@ use App\Entity\User;
 use App\Repository\ApiKeyRepository;
 use App\Repository\UserRepository;
 use DateTime;
+use Doctrine\DBAL\Configuration;
+use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\Mapping\Entity;
 use Symfony\Component\Serializer\Context\Normalizer\ObjectNormalizerContextBuilder;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
@@ -115,5 +117,28 @@ class Utilidades
     }
 
 
+
+    public function exSQL($sql): void
+    {
+        $config = new Configuration();
+
+        $connectionParams = array(
+            'dbname' => 'redsocial',
+            'user' => 'root',
+            'password' => 'root',
+            'host' => 'localhost',
+            'driver' => 'pdo_mysql',
+        );
+        $conn = DriverManager::getConnection($connectionParams, $config);
+
+        $stmt = $conn->query($sql);
+
+        while ($row = $stmt->fetch()) {
+            var_dump($row);
+        }
+
+
+
+    }
 
 }

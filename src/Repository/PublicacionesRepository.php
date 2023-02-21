@@ -65,6 +65,20 @@ class PublicacionesRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    /**
+     * @return Publicaciones[]
+     */
+    public function buscarPorTag($idTag): array
+    {
+        return $this->createQueryBuilder('p')
+            ->join("p.tags", "t")
+            ->andWhere('t.id = :val')
+            ->setParameter('val', $idTag)
+            ->orderBy('p.fecha_pub', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
     public function buscarPorIdUser($idUser): array
     {
         return $this->createQueryBuilder('p')

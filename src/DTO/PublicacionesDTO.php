@@ -16,7 +16,9 @@ class PublicacionesDTO
 
     private UserDto $user;
 
-    private ComentarioListarDTO $comentarios;
+    private Collection $tags;
+
+    private Collection $comentarios;
 
     private ?bool $estado;
 
@@ -119,20 +121,22 @@ class PublicacionesDTO
     }
 
     /**
-     * @return ComentarioListarDTO
+     * @return Collection
      */
-    public function getComentarios(): ComentarioListarDTO
+    public function getComentarios(): Collection
     {
         return $this->comentarios;
     }
 
     /**
-     * @param ComentarioListarDTO $comentarios
+     * @param Collection $comentarios
      */
-    public function setComentarios(ComentarioListarDTO $comentarios): void
+    public function setComentarios(Collection $comentarios): void
     {
         $this->comentarios = $comentarios;
     }
+
+
 
     /**
      * @return bool|null
@@ -148,6 +152,22 @@ class PublicacionesDTO
     public function setEstado(?bool $estado): void
     {
         $this->estado = $estado;
+    }
+
+    /**
+     * @return Collection
+     */
+    public function getTags(): Collection
+    {
+        return $this->tags;
+    }
+
+    /**
+     * @param Collection $tags
+     */
+    public function setTags(Collection $tags): void
+    {
+        $this->tags = $tags;
     }
 
 
