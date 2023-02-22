@@ -60,6 +60,10 @@ class ConvertersDTO
         $publicacionDTO->setLikes($publicacion->getLikes());
         $publicacionDTO->setEstado($publicacion->isEstado());
 
+        if($publicacion->getImagen()!=null){
+            $publicacionDTO->setImagen($publicacion->getImagen());
+        }
+
         $tags = new ArrayCollection();
         foreach ($publicacion->getTags() as $tag){
             $tagDTO = new TagsDTO();

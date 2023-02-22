@@ -159,15 +159,18 @@ class PublicacionController extends AbstractController
                 $listJson[] = json_decode($json);
             }
         } else {
-            return new JsonResponse("{ mensaje: No hay publicaciones acabadas }", 200, [], true);
+            return $this->json([
+                "error"=>"No hay publicaciones acabadas",
+            ]);
         }
 
-
-        return new JsonResponse($listJson, 200, [], false);
+        return $this->json([
+            "publicaciones"=>$listJson,
+        ]);
     }
 
 
-    #[Route('/cambiar', name: '', methods: ['PUT'])]
+    #[Route('/cambiar', name: 'app_publicacion_cambiarestadopub', methods: ['PUT'])]
     #[OA\Tag(name: 'Actualizar')]
     #[OA\RequestBody(description: "Dto de cambiar Estado", content: new OA\JsonContent(ref: new Model(type: CambiarEstadoPubDTO::class)))]
     #[OA\Parameter(name: 'idPub', description: "Id de la Publicacion", in: "query", required: true, schema: new OA\Schema(type: "string"))]
@@ -203,7 +206,7 @@ class PublicacionController extends AbstractController
     }
 
     #[Route('/buscarTag', name: '', methods: ['GET'])]
-    #[OA\Tag(name: 'buscador')]
+    #[OA\Tag(name: 'Buscador')]
     //#[OA\Parameter(name: 'idPub', description: "Id de la Publicacion", in: "query", required: true, schema: new OA\Schema(type: "string") )]
     #[OA\Parameter(name: 'tag', description: "Nombre del tag", in: "query", required: true, schema: new OA\Schema(type: "string"))]
     public function buscarPorTag(Utilidades $utilidades, ConvertersDTO $convertersDTO, Request $request)
