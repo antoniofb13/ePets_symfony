@@ -87,8 +87,8 @@ class ApiLoginController extends AbstractController
 
     #[Route('api/usuario/list', name: 'app_usuario_listar', methods: ['GET'])]
     #[OA\Tag(name: 'Listar')]
-    #[OA\Response(response:200,description:"successful operation" ,content: new OA\JsonContent(type: "array", items: new OA\Items(ref:new Model(type: UserDto::class))))]
-    public function listar(UserRepository $usuarioRepository, Utilidades $utilidades, ConvertersDTO $convertersDTO): JsonResponse
+    //#[OA\Response(response:200,description:"successful operation" ,content: new OA\JsonContent(type: "array", items: new OA\Items(ref:new Model(type: UserDto::class))))]
+    public function listar(UserRepository $usuarioRepository, Utilidades $utilidades, ConvertersDTO $convertersDTO)
     {
         $listUsuarios = $usuarioRepository->findAll();
 
@@ -100,7 +100,9 @@ class ApiLoginController extends AbstractController
             $listJson[] = json_decode($json);
         }
 
-        return new JsonResponse($listJson, 200,[],false);
+        return $this->json(
+            $listJson
+        );
     }
 
 }

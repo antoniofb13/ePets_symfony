@@ -10,7 +10,6 @@ class SaveAsociacionDTO{
     private string $direccion;
     private int $capacidad;
 
-    private string $username;
 
     public function __construct()
     {
@@ -62,22 +61,6 @@ class SaveAsociacionDTO{
     public function setCapacidad(int $capacidad): void
     {
         $this->capacidad = $capacidad;
-    }
-
-    /**
-     * @return string
-     */
-    public function getUsername(): string
-    {
-        return $this->username;
-    }
-
-    /**
-     * @param string $username
-     */
-    public function setUsername(string $username): void
-    {
-        $this->username = $username;
     }
 
 

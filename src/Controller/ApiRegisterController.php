@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\DTO\AsociacionDTO;
 use App\DTO\SaveAsociacionDTO;
+use App\DTO\saveUserDTO;
 use App\DTO\UserDto;
 use App\Entity\ApiKey;
 use App\Entity\Asociaciones;
@@ -11,6 +12,7 @@ use App\Entity\Rol;
 use App\Entity\User;
 use App\Repository\RolRepository;
 use App\Utilities\Utilidades;
+use ReallySimpleJWT\Token;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
@@ -39,7 +41,7 @@ class ApiRegisterController extends AbstractController
 
     #[Route('api/usuario/save', name: 'app_usuario_crear', methods: ['POST'])]
     #[OA\Tag(name: 'Registro')]
-    #[OA\RequestBody(description: "Dto de Registro", content: new OA\JsonContent(ref: new Model(type: UserDto::class)))]
+    #[OA\RequestBody(description: "Dto de Registro", content: new OA\JsonContent(ref: new Model(type: saveUserDTO::class)))]
     #[OA\Response(response: 200, description: "Usuario creado correctamente")]
     #[OA\Response(response: 101, description: "No ha indicado usario y contraseña")]
     public function save(ManagerRegistry $managerRegistry, Request $request, Utilidades $utilidades): JsonResponse
@@ -90,7 +92,7 @@ class ApiRegisterController extends AbstractController
     #[Route('api/usuario/saveProtectora', name: 'app_apiregister_saveprotectora', methods: ['POST'])]
     #[OA\Tag(name: 'Registro')]
     #[OA\RequestBody(description: "Dto de Registro de Protectora", content: new OA\JsonContent(ref: new Model(type: SaveAsociacionDTO::class)))]
-    public function saveProtectora(Request $request)
+    public function saveProtectora(Request $request, Utilidades $utilidades)
     {
 
         //CARGA DATOS
@@ -101,28 +103,42 @@ class ApiRegisterController extends AbstractController
         //Obtener Json del body
         $json = json_decode($request->getContent(), true);
 
-        //CREO UNA NUEVA ASOCIACION
-        $asociacionNueva = new Asociaciones();
+        //Obtener token de header
+        $token = $request->headers->get('token');
+        $valido = $utilidades->esApiKeyValida($token, null);
 
-        //BUSCAMOS EL USUARIO QUE VA A CREAR LA NUEVA ASOCIACION
-        $username = $json["username"];
-        $user = $userRepository->findOneBy(array("username" => $username));
-        //$idUser = $user->getId();
-
-        //COMPLETAMOS DATOS DE LA ASOCIACION A TRAVES DEL JSON
-        $asociacionNueva->setUser($user);
-        $asociacionNueva->setDireccion($json["direccion"]);
-        $asociacionNueva->setCapacidad($json["capacidad"]);
-        $logo = $json['logo'];
-        if ($logo == null or $logo == "string") {
-            $asociacionNueva->setLogo("https://th.bing.com/th/id/R.e794423499a66e3f7088b05e8f86ec60?rik=YUSvUmB0Q2aURw&pid=ImgRaw&r=0");
+        if (!$valido) {
+            return $this->json([
+                "prohibido" => "no tiene permisos para acceder a este sitio"
+            ]);
         } else {
-            $asociacionNueva->setLogo($json['logo']);
+            //CREO UNA NUEVA ASOCIACION
+            $asociacionNueva = new Asociaciones();
+
+            //BUSCAMOS EL USUARIO QUE VA A CREAR LA NUEVA ASOCIACION
+            $idUsuario = Token::getPayload($token)['user_id'];
+            $user = $userRepository->findOneBy(array("id" => $idUsuario));
+            if ($user) {
+                $user->setProtectora(1);
+                //COMPLETAMOS DATOS DE LA ASOCIACION A TRAVES DEL JSON
+                $asociacionNueva->setUser($user);
+                $asociacionNueva->setDireccion($json["direccion"]);
+                $asociacionNueva->setCapacidad($json["capacidad"]);
+                $logo = $json['logo'];
+                if ($logo == null or $logo == "string") {
+                    $asociacionNueva->setLogo("https://th.bing.com/th/id/R.e794423499a66e3f7088b05e8f86ec60?rik=YUSvUmB0Q2aURw&pid=ImgRaw&r=0");
+                } else {
+                    $asociacionNueva->setLogo($json['logo']);
+                }
+                //GUARDAR
+                $asociacionRepository->save($asociacionNueva, true);
+
+                return new JsonResponse("{ mensaje: Asociacion creada correctamente }", 200, [], true);
+            } else {
+                return $this->json([
+                    "error" => "usuario asociado a la protectora no encontrado"
+                ]);
+            }
         }
-
-        //GUARDAR
-        $asociacionRepository->save($asociacionNueva, true);
-
-        return new JsonResponse("{ mensaje: Asociacion creada correctamente }", 200, [], true);
     }
 }

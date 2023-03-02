@@ -3,6 +3,7 @@
 namespace App\DTO;
 
 use App\Entity\Asociaciones;
+use App\Entity\Chat;
 use App\Entity\Comentarios;
 use App\Entity\Publicaciones;
 use App\Entity\Tags;
@@ -29,6 +30,8 @@ class ConvertersDTO
         $usuarioDTO->setRol($user->getIdRol()->getTipo());
         $usuarioDTO->setProtectora($user->isProtectora());
         $usuarioDTO->setImagen($user->getImagen());
+
+
         return $usuarioDTO;
     }
 
@@ -51,7 +54,7 @@ class ConvertersDTO
      */
     public function publicacionDTO(Publicaciones $publicacion): PublicacionesDTO
     {
-        $utilidades = new Utilidades();
+
         $publicacionDTO = new PublicacionesDTO();
         $publicacionDTO->setId($publicacion->getId());
         $publicacionDTO->setUser($this->userToDTO($publicacion->getUser()));
@@ -63,6 +66,10 @@ class ConvertersDTO
             $publicacionDTO->setImagen($publicacion->getImagen());
         }
 
+
+        if($publicacion->getImagen()!=null){
+            $publicacionDTO->setImagen($publicacion->getImagen());
+        }
 
         $tags = new ArrayCollection();
         foreach ($publicacion->getTags() as $tag){
@@ -118,5 +125,19 @@ class ConvertersDTO
         $tagDTO->setId($tags->getId());
         $tagDTO->setNombre($tags->getNombre());
         return $tagDTO;
+    }
+
+    /**
+     * @param Chat $chat
+     */
+    public function chatToDTO(Chat $chat): ChatDTO
+    {
+        $chatDTO = new ChatDTO();
+        $chatDTO->setId($chat->getId());
+        $chatDTO->setCuerpo($chat->getCuerpo());
+        $chatDTO->setFecha($chat->getFecha()->format("d/m/Y H:i"));
+        $chatDTO->setEmisor($this->userToDTO($chat->getEmisor()));
+        $chatDTO->setReceptor($this->userToDTO($chat->getReceptor()));
+        return $chatDTO;
     }
 }

@@ -65,20 +65,23 @@ class BuscadorController extends AbstractController
         $asociacionRepository = $em->getRepository(Asociaciones::class);
 
         $username = $request->query->get("username");
-        //$user = $userRepository->findLikeUsername($username);
+
 
         $listAsociacion = $asociacionRepository->findLikeUsername($username);
+
         if ($listAsociacion != null) {
-            foreach ($listAsociacion as $asociacion){
+            foreach ($listAsociacion as $asociacion) {
                 $asociacionDTO = $convertersDTO->asociacionToDTO($asociacion);
                 $json = $utilidades->toJson($asociacionDTO, null);
                 $listJson[] = json_decode($json);
             }
             return new JsonResponse($listJson, 200, [], false);
+
         } else {
             return $this->json([
                 'mensaje' => "Asociación no encontrada",
             ]);
         }
     }
+
 }
