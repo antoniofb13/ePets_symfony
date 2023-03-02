@@ -100,9 +100,9 @@ class ApiLoginController extends AbstractController
             $listJson[] = json_decode($json);
         }
 
-        return $this->json([
-            "usuarios"=>$listJson
-        ]);
+        return $this->json(
+            $listJson
+        );
     }
 
 }

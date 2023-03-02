@@ -258,8 +258,8 @@ class PublicacionController extends AbstractController
         ]);
     }
 
-    #[Route('/like', name: '', methods: ['PUT'])]
-    #[OA\Tag(name: 'Like')]
+    #[Route('/like', name: 'app_publicacion_likes', methods: ['PUT'])]
+    #[OA\Tag(name: 'Likes')]
     //#[OA\RequestBody(description: "Dto de idPub", content: new OA\JsonContent(ref: new Model(type: saveLikeDTO::class)))]
     #[OA\Parameter(name: 'idPub', description: "Id de la Publicacion", in: "query", required: true, schema: new OA\Schema(type: "string") )]
     public function likes(Request $request){
