@@ -35,20 +35,22 @@ class BuscadorController extends AbstractController
 
 
         $username = $request->query->get("username");
-        $user = $userRepository->findOneBy(array("username" => $username));
-        //$user = $userRepository->findLikeUsername($username);
+        $listUser = $userRepository->findLikeUsername($username);
 
-        if ($user) {
-            $userDTO = $convertersDTO->userToDTO($user);
-            $json = $utilidades->toJson($userDTO, null);
-            $listJson[] = json_decode($json);
-            return new JsonResponse($listJson, 200, [], false);
+        if ($listUser != null) {
+            foreach ($listUser as $user) {
+                $userDTO = $convertersDTO->userToDTO($user);
+                $json = $utilidades->toJson($userDTO, null);
+                $listJson[] = json_decode($json);
+
+            }
+
         } else {
             return $this->json([
-                'mensaje' => "Usuario no encontrado",
+                'mensaje' => "No se han encontrado usuarios",
             ]);
-
         }
+        return $this->json($listJson);
     }
 
     #[Route('/asociacion', methods: ['GET'])]
@@ -63,21 +65,16 @@ class BuscadorController extends AbstractController
         $asociacionRepository = $em->getRepository(Asociaciones::class);
 
         $username = $request->query->get("username");
-        $user = $userRepository->findOneBy(array("username" => $username));
+        //$user = $userRepository->findLikeUsername($username);
 
-        if ($user) {
-            $asociacion = $asociacionRepository->findOneBy(array("user" => $user->getId()));
-
-            if ($asociacion) {
+        $listAsociacion = $asociacionRepository->findLikeUsername($username);
+        if ($listAsociacion != null) {
+            foreach ($listAsociacion as $asociacion){
                 $asociacionDTO = $convertersDTO->asociacionToDTO($asociacion);
                 $json = $utilidades->toJson($asociacionDTO, null);
                 $listJson[] = json_decode($json);
-                return new JsonResponse($listJson, 200, [], false);
-            } else {
-                return $this->json([
-                    'mensaje' => "Asociación no encontrada",
-                ]);
             }
+            return new JsonResponse($listJson, 200, [], false);
         } else {
             return $this->json([
                 'mensaje' => "Asociación no encontrada",

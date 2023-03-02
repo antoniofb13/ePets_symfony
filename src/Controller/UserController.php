@@ -19,9 +19,10 @@ class UserController extends AbstractController
     public function __construct(private ManagerRegistry $doctrine)
     {
     }
+
     #[Route('/verPerfil', name: 'app_user_verperfilypublicaciones', methods: ['GET'])]
     #[OA\Tag(name: 'Perfil')]
-    #[OA\Parameter(name: 'idUser', description: "Id del Usuario", in: "query", required: true, schema: new OA\Schema(type: "string") )]
+    #[OA\Parameter(name: 'idUser', description: "Id del Usuario", in: "query", required: true, schema: new OA\Schema(type: "string"))]
     public function verPerfilyPublicaciones(Utilidades $utilidades, ConvertersDTO $convertersDTO, Request $request): JsonResponse
     {
         //CARGA DATOS
@@ -31,16 +32,16 @@ class UserController extends AbstractController
 
         $idUser = $request->query->get("idUser");
 
-        $user =$usuarioRepository->findOneBy(array("id"=>$idUser));
+        $user = $usuarioRepository->findOneBy(array("id" => $idUser));
 
-        if ($user){
+        if ($user) {
 
             $listPublicaciones = $publicacionesRepository->buscarPorIdUser($idUser);
 
             $userDto = $convertersDTO->userToDTO($user);
 
 
-            if($listPublicaciones!=null){
+            if ($listPublicaciones != null) {
                 $listJson = array();
 
                 foreach ($listPublicaciones as $publicacion) {
@@ -48,10 +49,10 @@ class UserController extends AbstractController
                     $json = $utilidades->toJson($publicacionDTO, null);
                     $listJson[] = json_decode($json);
                 }
-            }else{
+            } else {
                 return new JsonResponse("{ mensaje: No hay publicaciones de este usuario }", 200, [], true);
             }
-        }else{
+        } else {
             return new JsonResponse("{ mensaje: No se ha encontrado el usuario }", 200, [], true);
         }
 
@@ -60,4 +61,26 @@ class UserController extends AbstractController
             'publicaciones' => $listJson
         ]);
     }
+/*
+    #[Route('/buscarUsuario', name: 'app_user_buscar', methods: ['GET'])]
+    #[OA\Tag(name: 'BuscarUsuario')]
+    #[OA\Parameter(name: 'username', description: "Id del Usuario", in: "query", required: true, schema: new OA\Schema(type: "string"))]
+    public function buscar(Request $request, ConvertersDTO $convertersDTO)
+    {
+        $em = $this->doctrine->getManager();
+        $usuarioRepository = $em->getRepository(User::class);
+        $username = $request->query->get("username");
+        $user = $usuarioRepository->findByUsername($username);
+
+        if ($user) {
+
+
+            $userDto = $convertersDTO->userToDTO($user);
+
+        }
+        return $this->json([
+            'user' => $userDto
+        ]);
+    }*/
+
 }

@@ -25,7 +25,6 @@ class PublicacionSaveDTO
         $this->imagen = $imagen;
     }
 
-    private string $imagen;
 
 
     /**
@@ -59,23 +58,6 @@ class PublicacionSaveDTO
     {
         $this->cuerpo = $cuerpo;
     }
-
-    /**
-     * @return string
-     */
-    public function getImagen(): string
-    {
-        return $this->imagen;
-    }
-
-    /**
-     * @param string $imagen
-     */
-    public function setImagen(string $imagen): void
-    {
-        $this->imagen = $imagen;
-    }
-
 
 
 }

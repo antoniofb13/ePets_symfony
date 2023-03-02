@@ -55,15 +55,25 @@ class UserRepository extends ServiceEntityRepository
 //        ;
 //    }
 
+ //  public function findLikeUsername($username): array{
+ //      $rsm = new ResultSetMapping();
+
+ //      $query= $this->getEntityManager()->createNativeQuery('SELECT * from `User` WHERE `username` like %?%',$rsm);
+ //      $query->setParameter(1, $username);
+
+ //      $user[] = $query->getResult();
+
+ //      return $user;
+ //  }
+    /**
+     * @return User[]
+     */
     public function findLikeUsername($username): array{
-        $rsm = new ResultSetMapping();
-
-        $query= $this->getEntityManager()->createNativeQuery('SELECT * from `User` WHERE `username` like %?%',$rsm);
-        $query->setParameter(1, $username);
-
-        $user[] = $query->getResult();
-
-        return $user;
+        return $this->createQueryBuilder('u')
+            ->andWhere('u.username LIKE :val')
+            ->setParameter('val', '%'.$username.'%')
+            ->getQuery()
+            ->getResult();
     }
 
 //    public function findOneBySomeField($value): ?User
@@ -75,6 +85,15 @@ class UserRepository extends ServiceEntityRepository
 //            ->getOneOrNullResult()
 //        ;
 //    }
+    public function findByUsername($username){
+        if (!$username){
+            return self::all();
 
+        }
+        return self::where('nombre', 'like', "%$username%")
+            ->orWhere('username', 'like', "%$username%")
+            ->get();
+
+    }
 
 }

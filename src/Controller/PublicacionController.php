@@ -64,8 +64,7 @@ class PublicacionController extends AbstractController
             if ($json["imagen"] != null) {
                 $publicacionNueva->setImagen($json["imagen"]);
             }
-        }
-         else {
+        } else {
             return $this->json([
                 'error' => 'El usuario no existe',
             ]);
@@ -203,7 +202,7 @@ class PublicacionController extends AbstractController
     }
 
     #[Route('/buscarTag', name: '', methods: ['GET'])]
-    #[OA\Tag(name: 'buscador')]
+    #[OA\Tag(name: 'Buscador')]
     //#[OA\Parameter(name: 'idPub', description: "Id de la Publicacion", in: "query", required: true, schema: new OA\Schema(type: "string") )]
     #[OA\Parameter(name: 'tag', description: "Nombre del tag", in: "query", required: true, schema: new OA\Schema(type: "string"))]
     public function buscarPorTag(Utilidades $utilidades, ConvertersDTO $convertersDTO, Request $request)
@@ -216,31 +215,26 @@ class PublicacionController extends AbstractController
         $nombreTag = $request->query->get("tag");
 
         //$publicacion = $publicacionesRepository->findOneBy(array("id"=>$idPub));
-        $tag = $tagRepository->findOneBy(array("nombre" => $nombreTag));
-        if ($tag) {
-            $idTag = $tag->getId();
-            $listPublicaciones = $publicacionesRepository->buscarPorTag($idTag);
-            if ($listPublicaciones != null) {
-                $listJson = array();
 
-                foreach ($listPublicaciones as $publicacion) {
-                    $publicacionDTO = $convertersDTO->publicacionDTO($publicacion);
-                    $json = $utilidades->toJson($publicacionDTO, null);
-                    $listJson[] = json_decode($json);
-                }
-            }else{
-                return $this->json([
-                    "error" => "No hay publicaciones con este tag",
-                ]);
+
+        $listPublicaciones = $publicacionesRepository->buscarPorTag($nombreTag);
+        if ($listPublicaciones != null) {
+            $listJson = array();
+
+            foreach ($listPublicaciones as $publicacion) {
+                $publicacionDTO = $convertersDTO->publicacionDTO($publicacion);
+                $json = $utilidades->toJson($publicacionDTO, null);
+                $listJson[] = json_decode($json);
             }
-
         } else {
             return $this->json([
-                "error" => "tag no encontrado",
+                "error" => "No hay publicaciones con este tag",
             ]);
         }
+
+
         return $this->json([
             "publicaciones" => $listJson,
-            ]);
+        ]);
     }
 }

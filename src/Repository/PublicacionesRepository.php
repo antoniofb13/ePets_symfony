@@ -68,12 +68,12 @@ class PublicacionesRepository extends ServiceEntityRepository
     /**
      * @return Publicaciones[]
      */
-    public function buscarPorTag($idTag): array
+    public function buscarPorTag($nombreTag): array
     {
         return $this->createQueryBuilder('p')
             ->join("p.tags", "t")
-            ->andWhere('t.id = :val')
-            ->setParameter('val', $idTag)
+            ->andWhere('t.nombre LIKE :val')
+            ->setParameter('val', '%'.$nombreTag.'%')
             ->orderBy('p.fecha_pub', 'DESC')
             ->getQuery()
             ->getResult();

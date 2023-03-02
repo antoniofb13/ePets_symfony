@@ -39,6 +39,18 @@ class AsociacionesRepository extends ServiceEntityRepository
         }
     }
 
+    /**
+     * @return Asociaciones[]
+     */
+    public function findLikeUsername($username): array{
+        return $this->createQueryBuilder('a')
+            ->join("a.user", "u")
+            ->andWhere('u.username LIKE :val')
+            ->setParameter('val', '%'.$username.'%')
+            ->getQuery()
+            ->getResult();
+    }
+
 //    /**
 //     * @return Asociaciones[] Returns an array of Asociaciones objects
 //     */
