@@ -10,6 +10,7 @@ use DateTime;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\Mapping\Entity;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Serializer\Context\Normalizer\ObjectNormalizerContextBuilder;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
@@ -22,6 +23,10 @@ use ReallySimpleJWT\Token;
 
 class Utilidades
 {
+
+    public function __construct(private ManagerRegistry $doctrine)
+    {
+    }
 
 
     public function toJson($data, ?array  $groups ): string
@@ -101,19 +106,34 @@ class Utilidades
         return $token;
     }
 
-    public function esApiKeyValida($token, $permisoRequerido, ApiKeyRepository $apiKeyRepository,UserRepository $usuarioRepository):bool
+    public function esApiKeyValida($token, $permisoRequerido): bool
     {
+
+        //Autowireds
+        $em = $this->doctrine->getManager();
+        $apiKeyRepository = $em->getRepository(ApiKey::class);
+        $usuarioRepository = $em->getRepository(User::class);
+
+        //Usuario que hace la peticion
+        $idUsuario = Token::getPayload($token)['user_id'];
+
         $apiKey = $apiKeyRepository->findOneBy(array("token" => $token));
         $fechaActual = DateTime::createFromFormat('Y-m-d H:i:s', date("Y-m-d H:i:s"));
-        $id_usuario = Token::getPayload($token)["user_id"];
-        $rol_name= Token::getPayload($token)["user_rol"];
-        $usuario= $usuarioRepository->findOneBy(array("id" => $id_usuario));
+        $fechaExpiracion = Token::getPayload($token)['fecha_expiracion'];
+        $rolName = Token::getPayload($token)['user_rol'];
+        $usuario = $usuarioRepository->findOneBy(array("id" => $idUsuario));
 
-        return $apiKey == null
-            or $permisoRequerido == $rol_name
-            or $apiKey->getIdUsuario()->getId() == $id_usuario
-            or $apiKey->getFechaExpiracion() <= $fechaActual
-            or Token::validate($token, $usuario->getPassword());
+        if ( $fechaExpiracion >= $fechaActual){
+            $oldToken = $apiKeyRepository->findOneBy(array('usuario' => $usuario));
+            $apiKeyRepository->remove($oldToken, true);
+            return false;
+        } else {
+            return $apiKey == null
+                or $permisoRequerido == $rolName                    //Preguntar a luis sobre esto
+                or $apiKey->getIdUsuario()->getId() == $idUsuario
+                or Token::validate($token, $usuario->getPassword());
+        }
+
     }
 
 

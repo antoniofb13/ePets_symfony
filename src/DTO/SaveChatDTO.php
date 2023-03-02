@@ -2,11 +2,12 @@
 
 namespace App\DTO;
 
-class PublicacionSaveDTO
+use Symfony\Component\Serializer\Annotation\Ignore;
+
+class SaveChatDTO
 {
     private string $cuerpo;
-
-    private string $imagen;
+    private int $id_receptor;
 
 
     /**
@@ -26,19 +27,19 @@ class PublicacionSaveDTO
     }
 
     /**
-     * @return string
+     * @return int
      */
-    public function getImagen(): string
+    public function getIdReceptor(): int
     {
-        return $this->imagen;
+        return $this->id_receptor;
     }
 
     /**
-     * @param string $imagen
+     * @param int $id_receptor
      */
-    public function setImagen(string $imagen): void
+    public function setIdReceptor(int $id_receptor): void
     {
-        $this->imagen = $imagen;
+        $this->id_receptor = $id_receptor;
     }
 
 

@@ -6,6 +6,7 @@ use App\DTO\CambiarEstadoPubDTO;
 use App\DTO\ConvertersDTO;
 use App\DTO\PublicacionesDTO;
 use App\DTO\PublicacionSaveDTO;
+use App\DTO\saveLikeDTO;
 use App\Entity\Comentarios;
 use App\Entity\Publicaciones;
 use App\Entity\Tags;
@@ -14,6 +15,8 @@ use App\Repository\PublicacionesRepository;
 use App\Utilities\Utilidades;
 use DateTime;
 use Doctrine\Persistence\ManagerRegistry;
+use Exception;
+use ReallySimpleJWT\Token;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -33,7 +36,7 @@ class PublicacionController extends AbstractController
     #[Route('/save', name: 'app_publicacion', methods: ['POST'])]
     #[OA\Tag(name: 'Publicaciones')]
     #[OA\RequestBody(description: "Dto de publicacion", content: new OA\JsonContent(ref: new Model(type: PublicacionSaveDTO::class)))]
-    public function savePublicacion(Request $request)
+    public function savePublicacion(Request $request, Utilidades $utilidades)
     {
         //CARGA DATOS
         $em = $this->doctrine->getManager();
@@ -43,41 +46,49 @@ class PublicacionController extends AbstractController
         //Obtener Json del body
         $json = json_decode($request->getContent(), true);
 
-        //CREO UNA NUEVA ASOCIACION
-        $publicacionNueva = new Publicaciones();
+        //Obtener token de header
+        $token = $request->headers->get('token');
+        $valido = $utilidades->esApiKeyValida($token, null);
 
-        //BUSCAMOS EL USUARIO QUE VA A CREAR LA NUEVA PUBLICACION
-        $username = $json["username"];
-        $user = $userRepository->findOneBy(array("username" => $username));
-        //$idUser = $user->getId();
-        if ($user) {
-            $fechaActual = date("Y-m-d H:i:s");
-            $fecha = DateTime::createFromFormat('Y-m-d H:i:s', $fechaActual);
-
-
-            //COMPLETAMOS DATOS DE LA ASOCIACION A TRAVES DEL JSON
-            $publicacionNueva->setUser($user);
-            $publicacionNueva->setCuerpo($json["cuerpo"]);
-            $publicacionNueva->setFechaPub($fecha);
-            $publicacionNueva->setLikes(0);
-            $publicacionNueva->setEstado(0);
-            if($json["imagen"]!=null){
-                $publicacionNueva->setImagen($json["imagen"]);
-            }
-
-        } else {
+        if (!$valido) {
             return $this->json([
-                'error' => 'El usuario no existe',
+                "prohibido" => "no tiene permisos para acceder a este sitio"
+            ]);
+        } else {
+            //CREO UNA NUEVA ASOCIACION
+            $publicacionNueva = new Publicaciones();
+
+            //Buscamos el usuario
+            $idUsuario = Token::getPayload($token)['user_id'];
+            $usuario = $userRepository->findOneBy(array("id"=>$idUsuario));
+
+            if ($usuario) {
+                $fechaActual = date("Y-m-d H:i:s");
+                $fecha = DateTime::createFromFormat('Y-m-d H:i:s', $fechaActual);
+
+
+                //COMPLETAMOS DATOS DE LA ASOCIACION A TRAVES DEL JSON
+                $publicacionNueva->setUser($usuario);
+                $publicacionNueva->setCuerpo($json["cuerpo"]);
+                $publicacionNueva->setFechaPub($fecha);
+                $publicacionNueva->setLikes(0);
+                $publicacionNueva->setEstado(0);
+                if ($json["imagen"] != null) {
+                    $publicacionNueva->setImagen($json["imagen"]);
+                }
+
+            } else {
+                return $this->json([
+                    'error' => 'El usuario no existe',
+                ]);
+            }
+            //GUARDAR
+            $publicacionRepository->save($publicacionNueva, true);
+
+            return $this->json([
+                'message' => 'Publicacion creada correctamente',
             ]);
         }
-        //OBTENGO LA FECHA ACTUAL
-
-        //GUARDAR
-        $publicacionRepository->save($publicacionNueva, true);
-
-        return $this->json([
-            'message' => 'Publicacion creada correctamente',
-        ]);
     }
 
     #[Route('/list', name: 'app_publicacion_listarpublicaciones', methods: ['GET'])]
@@ -160,12 +171,12 @@ class PublicacionController extends AbstractController
             }
         } else {
             return $this->json([
-                "error"=>"No hay publicaciones acabadas",
+                "error" => "No hay publicaciones acabadas",
             ]);
         }
 
         return $this->json([
-            "publicaciones"=>$listJson,
+            "publicaciones" => $listJson,
         ]);
     }
 
@@ -231,7 +242,7 @@ class PublicacionController extends AbstractController
                     $json = $utilidades->toJson($publicacionDTO, null);
                     $listJson[] = json_decode($json);
                 }
-            }else{
+            } else {
                 return $this->json([
                     "error" => "No hay publicaciones con este tag",
                 ]);
@@ -244,6 +255,66 @@ class PublicacionController extends AbstractController
         }
         return $this->json([
             "publicaciones" => $listJson,
+        ]);
+    }
+
+    #[Route('/like', name: '', methods: ['PUT'])]
+    #[OA\Tag(name: 'Like')]
+    //#[OA\RequestBody(description: "Dto de idPub", content: new OA\JsonContent(ref: new Model(type: saveLikeDTO::class)))]
+    #[OA\Parameter(name: 'idPub', description: "Id de la Publicacion", in: "query", required: true, schema: new OA\Schema(type: "string") )]
+    public function likes(Request $request){
+        $em = $this->doctrine->getManager();
+        $publicacionesRepository = $em->getRepository(Publicaciones::class);
+
+        //$json = json_decode($request->getContent(), true);
+
+        $idPub = $request->query->get("idPub");
+        //$idPub = $json["idPub"];
+
+        $publicacion = $publicacionesRepository->findOneBy(array("id"=>$idPub));
+
+        if($publicacion){
+            try {
+                $likes = $publicacion->getLikes();
+                $nuevoLike = $likes + 1;
+                $publicacion->setLikes($nuevoLike);
+
+                $em->persist($publicacion);
+                $em->flush();
+            }catch (Exception $e){
+                echo '{"error":"Caught exception: ' . $e->getMessage() .'"}';
+            }
+        }else{
+            return $this->json([
+                'error'=>'No existe esta publicación'
             ]);
+        }
+        return $this->json([
+            "message"=>"Numero de likes actualizado: ".$publicacion->getLikes()
+        ]);
+    }
+
+    #[Route('/verPub', name: '', methods: ['GET'])]
+    #[OA\Tag(name: 'Listar')]
+    #[OA\Parameter(name: 'idPub', description: "Id de la Publicacion", in: "query", required: true, schema: new OA\Schema(type: "string") )]
+    public function verPubPorId(Request $request, Utilidades $utilidades, ConvertersDTO $convertersDTO){
+
+        $em = $this->doctrine->getManager();
+        $publicacionesRepository = $em->getRepository(Publicaciones::class);
+
+        $idPub = $request->query->get("idPub");
+
+        $publicacion = $publicacionesRepository->findOneBy(array("id"=>$idPub));
+
+        if($publicacion){
+            $publicacionDTO = $convertersDTO->publicacionDTO($publicacion);
+        }else{
+            return $this->json([
+                "error"=>"No se encuentra esta publicacion"
+            ]);
+        }
+        return $this->json([
+            "publicacion"=>$publicacionDTO
+        ]);
     }
 }

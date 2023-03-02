@@ -3,13 +3,9 @@
 namespace App\DTO;
 
 use Symfony\Component\Serializer\Annotation\Ignore;
-use Symfony\Contracts\Service\Attribute\Required;
-use Doctrine\Common\Collections\Collection;
 
-class UserDto{
-
-
-    private int $id;
+class saveUserDTO
+{
     private string $username;
     private string $nombre;
     private string $apellidos;
@@ -17,29 +13,7 @@ class UserDto{
     private string $telefono;
     private string $password;
     private string $imagen;
-    private bool $protectora;
     private string $rol;
-
-
-    public function __construct()
-    {
-    }
-
-    /**
-     * @return int
-     */
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-    /**
-     * @param int $id
-     */
-    public function setId(int $id): void
-    {
-        $this->id = $id;
-    }
 
     /**
      * @return string
@@ -154,22 +128,6 @@ class UserDto{
     }
 
     /**
-     * @return bool
-     */
-    public function isProtectora(): bool
-    {
-        return $this->protectora;
-    }
-
-    /**
-     * @param bool $protectora
-     */
-    public function setProtectora(bool $protectora): void
-    {
-        $this->protectora = $protectora;
-    }
-
-    /**
      * @return string
      */
     public function getRol(): string
@@ -184,5 +142,6 @@ class UserDto{
     {
         $this->rol = $rol;
     }
+
 
 }

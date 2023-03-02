@@ -9,20 +9,20 @@ use Symfony\Component\Serializer\Annotation\Ignore;
 
 class ComentariosDTO{
 
-    #[Ignore]
+
     private int $id;
 
     private string $mensaje;
 
-    #[Ignore]
+
     private string $fechaCom;
 
     //private int $id_publicacion;
 
-    #[Ignore]
+
     private UserDto $user;
 
-    #[Ignore]
+
     private PublicacionesDTO $publicacion;
 
     /**
