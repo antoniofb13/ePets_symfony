@@ -62,6 +62,10 @@ class ConvertersDTO
         $publicacionDTO->setFechaPu($publicacion->getFechaPub()->format("d/m/Y H:i"));
         $publicacionDTO->setLikes($publicacion->getLikes());
         $publicacionDTO->setEstado($publicacion->isEstado());
+        if ($publicacion->getImagen()!=null){
+            $publicacionDTO->setImagen($publicacion->getImagen());
+        }
+
 
         if($publicacion->getImagen()!=null){
             $publicacionDTO->setImagen($publicacion->getImagen());

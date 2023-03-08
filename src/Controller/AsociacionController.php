@@ -20,8 +20,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use OpenApi\Attributes as OA;
 use Doctrine\Persistence\ManagerRegistry;
 
-
-#[Route('/api/asociacion')]
+#[Route("/api/asociacion")]
 class AsociacionController extends AbstractController
 {
 
@@ -36,7 +35,7 @@ class AsociacionController extends AbstractController
     #[Route('/list', name: 'app_asociacion_listar', methods: ['GET'])]
     #[OA\Tag(name: 'Listar')]
     //#[OA\Response(response:200,description:"successful operation" ,content: new OA\JsonContent(type: "array", items: new OA\Items(ref:new Model(type: AsociacionDTO::class))))]
-  //  #[OA\Parameter(name: 'api_key', description: "Api de autentificación", in: "query", required: true, schema: new OA\Schema(type: "string") )]
+   // #[OA\Parameter(name: 'api_key', description: "Api de autentificación", in: "query", required: true, schema: new OA\Schema(type: "string") )]
     public function listarAsociaciones(AsociacionesRepository $asociacionesRepository, Utilidades $utilidades, ConvertersDTO $convertersDTO, Request $request): JsonResponse
     {
 
