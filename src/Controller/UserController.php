@@ -248,4 +248,38 @@ class UserController extends AbstractController
             "message" => "Perfil modificado con éxito",
         ]);
     }
+
+
+    #[Route('/verLogeado', name: 'app_user_veruserlogeado', methods: ['GET'])]
+    #[OA\Tag(name: 'Perfil')]
+    public function verUserLogeado(Request $request, Utilidades $utilidades, ConvertersDTO $convertersDTO){
+        //CARGA DATOS
+        $em = $this->doctrine->getManager();
+        $usuarioRepository = $em->getRepository(User::class);
+
+        //Obtener token de header
+        $token = $request->headers->get('token');
+        $valido = $utilidades->esApiKeyValida($token, null);
+
+        if (!$valido) {
+            return $this->json([
+                "prohibido" => "no tiene permisos para acceder a este sitio"
+            ]);
+        }else{
+            //Buscamos el usuario
+            $idUsuario = Token::getPayload($token)['user_id'];
+            $usuario = $usuarioRepository->findOneBy(array("id"=>$idUsuario));
+
+            if($usuario){
+                $userDTO = $convertersDTO->userToDTO($usuario);
+            }else{
+                return $this->json([
+                    "error"=>"no se encuentra este usuario"
+                ]);
+            }
+        }
+        return $this->json([
+            $userDTO
+        ]);
+    }
 }
