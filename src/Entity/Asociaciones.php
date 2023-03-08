@@ -23,7 +23,7 @@ class Asociaciones
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $logo = null;
 
-    #[ORM\OneToOne(inversedBy: 'asociaciones', cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(inversedBy: 'asociaciones', cascade: ['persist'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
 

@@ -11,6 +11,7 @@ use App\Entity\User;
 use App\Utilities\Utilidades;
 use Doctrine\Persistence\ManagerRegistry;
 use Nelmio\ApiDocBundle\Annotation\Model;
+use ReallySimpleJWT\Token;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,6 +24,66 @@ class UserController extends AbstractController
 {
     public function __construct(private ManagerRegistry $doctrine)
     {
+    }
+
+    #[Route('/miPerfil', name: 'app_user_miperfil', methods: ['GET'])]
+    #[OA\Tag(name: 'Perfil')]
+    //#[OA\Parameter(name: 'idUser', description: "Id del Usuario", in: "query", required: true, schema: new OA\Schema(type: "string"))]
+    public function miPerfil(Utilidades $utilidades, ConvertersDTO $convertersDTO, Request $request): JsonResponse
+    {
+        //CARGA DATOS
+        $em = $this->doctrine->getManager();
+        $publicacionesRepository = $em->getRepository(Publicaciones::class);
+        $usuarioRepository = $em->getRepository(User::class);
+
+        //Obtener token de header
+        $token = $request->headers->get('token');
+        $valido = $utilidades->esApiKeyValida($token, null);
+
+        if (!$valido) {
+            return $this->json([
+                "prohibido" => "no tiene permisos para acceder a este sitio"
+            ]);
+        } else {
+            //Buscamos el usuario
+            $idUsuario = Token::getPayload($token)['user_id'];
+            $user = $usuarioRepository->findBy(array("id"=>$idUsuario));
+
+            if ($user) {
+
+                $listPublicaciones = $publicacionesRepository->buscarPorIdUser($idUsuario);
+
+                $listUser = array();
+                foreach ($user as $userDTO){
+                    $usuarioDTO = $convertersDTO->userToDTO($userDTO);
+                    $toJson = $utilidades->toJson($usuarioDTO, null);
+                    $listUser[] = json_decode($toJson);
+                }
+
+                //$userDto = $convertersDTO->userToDTO($user);
+
+
+                if ($listPublicaciones != null) {
+                    $listJson = array();
+
+                    foreach ($listPublicaciones as $publicacion) {
+                        $publicacionDTO = $convertersDTO->publicacionDTO($publicacion);
+                        $json = $utilidades->toJson($publicacionDTO, null);
+                        $listJson[] = json_decode($json);
+                    }
+                } else {
+                    return $this->json([
+                        'usuario' => $listUser,
+                    ]);
+                }
+            } else {
+                return new JsonResponse("{ mensaje: No se ha encontrado el usuario }", 200, [], true);
+            }
+        }
+        return $this->json([
+            "usuario"=>$listUser,
+            'publicaciones' => $listJson
+        ]);
     }
 
     #[Route('/verPerfil', name: 'app_user_verperfilypublicaciones', methods: ['GET'])]
@@ -100,19 +161,19 @@ class UserController extends AbstractController
                     } elseif ($json["apellidos"] == null) {
                         $user->setApellidos($user->getApellidos());
 
-                    }elseif ($json["apellidos"]!=null){
+                    } elseif ($json["apellidos"] != null) {
                         $user->setApellidos($json["apellidos"]);
 
                     } elseif ($json["telefono"] == null) {
                         $user->setTelefono($user->getTelefono());
 
-                    }elseif ($json["telefono"]!=null){
+                    } elseif ($json["telefono"] != null) {
                         $user->setTelefono($json["telefono"]);
 
                     } elseif ($json["imagen"] == null) {
                         $user->setImagen($user->getImagen());
 
-                    }elseif ($json["imagen"]!= null){
+                    } elseif ($json["imagen"] != null) {
                         $user->setImagen($json["imagen"]);
                     } else {
                         return $this->json([
@@ -123,7 +184,7 @@ class UserController extends AbstractController
                     $em->persist($user);
                     $em->flush();
 
-                }else{
+                } else {
                     if ($json["nombre"] == null) {
                         $user->setNombre($user->getNombre());
 
@@ -133,21 +194,22 @@ class UserController extends AbstractController
                     } elseif ($json["apellidos"] == null) {
                         $user->setApellidos($user->getApellidos());
 
-                    }elseif ($json["apellidos"]!=null){
+                    } elseif ($json["apellidos"] != null) {
                         $user->setApellidos($json["apellidos"]);
 
                     } elseif ($json["telefono"] == null) {
                         $user->setTelefono($user->getTelefono());
 
-                    }elseif ($json["telefono"]!=null){
+                    } elseif ($json["telefono"] != null) {
                         $user->setTelefono($json["telefono"]);
 
                     } elseif ($json["imagen"] == null) {
                         $user->setImagen($user->getImagen());
 
-                    }elseif ($json["imagen"]!= null){
+                    } elseif ($json["imagen"] != null) {
                         $user->setImagen($json["imagen"]);
-                    }if ($json["nombre"] == null) {
+                    }
+                    if ($json["nombre"] == null) {
                         $user->setNombre($user->getNombre());
 
                     } elseif ($json["nombre"] != null) {
@@ -156,19 +218,19 @@ class UserController extends AbstractController
                     } elseif ($json["apellidos"] == null) {
                         $user->setApellidos($user->getApellidos());
 
-                    }elseif ($json["apellidos"]!=null){
+                    } elseif ($json["apellidos"] != null) {
                         $user->setApellidos($json["apellidos"]);
 
                     } elseif ($json["telefono"] == null) {
                         $user->setTelefono($user->getTelefono());
 
-                    }elseif ($json["telefono"]!=null){
+                    } elseif ($json["telefono"] != null) {
                         $user->setTelefono($json["telefono"]);
 
                     } elseif ($json["imagen"] == null) {
                         $user->setImagen($user->getImagen());
 
-                    }elseif ($json["imagen"]!= null){
+                    } elseif ($json["imagen"] != null) {
                         $user->setImagen($json["imagen"]);
                     }
                     $em->persist($user);

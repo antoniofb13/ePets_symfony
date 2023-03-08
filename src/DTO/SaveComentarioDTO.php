@@ -4,6 +4,7 @@ namespace App\DTO;
 
 class SaveComentarioDTO
 {
+
     private string $mensaje;
 
     /**

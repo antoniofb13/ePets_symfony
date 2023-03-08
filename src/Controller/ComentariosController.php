@@ -29,7 +29,7 @@ class ComentariosController extends AbstractController
     #[Route('api/comentarios/saveComen', name: 'app_comentarios_savecomentario', methods: ['POST'])]
     #[OA\Tag(name: 'Comentarios')]
     #[OA\RequestBody(description: "Dto de Registro", content: new OA\JsonContent(ref: new Model(type: SaveComentarioDTO::class)))]
-    #[OA\Parameter(name: 'id_pub', description: "Id de publicacion a la que pertenece el comentario", in: "query", required: true, schema: new OA\Schema(type: "string") )]
+    #[OA\Parameter(name: 'idPub', description: "Id de publicacion a la que pertenece el comentario", in: "query", required: true, schema: new OA\Schema(type: "string") )]
     //#[OA\Parameter(name: 'username', description: "Nombre de usuario que va a hacer el comentario", in: "query", required: true, schema: new OA\Schema(type: "string") )]
     public function saveComentario(Request $request, Utilidades $utilidades){
 
@@ -52,7 +52,7 @@ class ComentariosController extends AbstractController
             ]);
         }else{
             //Buscamos la publicacion
-            $idPub = $request->query->get("id_pub");
+            $idPub = $request->query->get("idPub");
             $publicacion = $publicacionesRepository->findOneBy(array("id"=>$idPub));
 
             //Buscamos el usuario
@@ -64,21 +64,28 @@ class ComentariosController extends AbstractController
             $fecha = DateTime::createFromFormat('Y-m-d H:i:s', $fechaActual);
 
 
-            if($publicacion && $usuario){
-                $comentarioNuevo = new Comentarios();
-                $comentarioNuevo->setUser($usuario);
-                $comentarioNuevo->setMensaje($json["mensaje"]);
-                $comentarioNuevo->setFechaCom($fecha);
-                $comentarioNuevo->setPublicacion($publicacion);
+            if($publicacion){
+                if($usuario){
+                    $comentarioNuevo = new Comentarios();
+                    $comentarioNuevo->setUser($usuario);
+                    $comentarioNuevo->setMensaje($json["mensaje"]);
+                    $comentarioNuevo->setFechaCom($fecha);
+                    $comentarioNuevo->setPublicacion($publicacion);
 
-                $comentariosRepository->save($comentarioNuevo, true);
+                    $comentariosRepository->save($comentarioNuevo, true);
 
-                return $this->json([
-                    'message' => "Comentario creado correctamente",
-                ]);
+                    return $this->json([
+                        'message' => "Comentario creado correctamente",
+                    ]);
+                }else{
+                    return $this->json([
+                        "error"=>"usuario no encotrado"
+                    ]);
+                }
+
             }else{
                 return $this->json([
-                    'error'=>"Usuario o publicacion incorrectos"
+                    'error'=>"publicacion incorrectos"
                 ]);
             }
         }

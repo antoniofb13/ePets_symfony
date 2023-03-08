@@ -92,8 +92,8 @@ class TagsController extends AbstractController
                 'error' => 'No hay tags disponibles',
             ]);
         }
-        return $this->json([
-            'tags' => $listJson,
-        ]);
+        return $this->json(
+          $listJson
+        );
     }
 }

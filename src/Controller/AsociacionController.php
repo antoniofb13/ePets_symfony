@@ -11,6 +11,7 @@ use App\Entity\Publicaciones;
 use App\Entity\User;
 use App\Repository\AsociacionesRepository;
 use App\Utilities\Utilidades;
+use ReallySimpleJWT\Token;
 use Symfony\Component\HttpFoundation\Request;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -118,6 +119,52 @@ class AsociacionController extends AbstractController
         return $this->json([
             "asociacion"=>$asocDTO,
             "publicaciones"=>$listJson
+        ]);
+    }
+
+    #[Route('/deleteProtectora', name: 'app_asociacion_dejarserprotectora', methods: ['DELETE'])]
+    #[OA\Tag(name: 'Protectora')]
+    //#[OA\Parameter(name: 'idAsociacion', description: "Id de la Asociacion", in: "query", required: true, schema: new OA\Schema(type: "string"))]
+    public function dejarSerProtectora(Request $request, Utilidades $utilidades){
+        //CARGA DATOS
+        $em = $this->doctrine->getManager();
+        $usuarioRepository = $em->getRepository(User::class);
+        $asociacionRepository = $em->getRepository(Asociaciones::class);
+
+        //Obtener token de header
+        $token = $request->headers->get('token');
+        $valido = $utilidades->esApiKeyValida($token, null);
+
+        if (!$valido) {
+            return $this->json([
+                "prohibido" => "no tiene permisos para acceder a este sitio"
+            ]);
+        }else{
+            //Buscamos el usuario
+            $idUsuario = Token::getPayload($token)['user_id'];
+            $user = $usuarioRepository->findOneBy(array("id"=>$idUsuario));
+
+            if($user){
+                $asociacion = $asociacionRepository->findOneBy(array("user"=>$user));
+                $user->setProtectora(0);
+                $em->persist($user);
+                $em->flush();
+                if($asociacion){
+                    $asociacionRepository->remove($asociacion);
+                    $em->flush();
+                }else{
+                    return $this->json([
+                        "error"=>"asociacion no encontrada"
+                    ]);
+                }
+            }else{
+                return $this->json([
+                    "error"=>"usuario no encontrado"
+                ]);
+            }
+        }
+        return $this->json([
+            "message"=>"este usuario ya no es una protectora"
         ]);
     }
 }

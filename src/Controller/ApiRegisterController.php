@@ -126,14 +126,16 @@ class ApiRegisterController extends AbstractController
                 $asociacionNueva->setCapacidad($json["capacidad"]);
                 $logo = $json['logo'];
                 if ($logo == null or $logo == "string") {
-                    $asociacionNueva->setLogo("https://th.bing.com/th/id/R.e794423499a66e3f7088b05e8f86ec60?rik=YUSvUmB0Q2aURw&pid=ImgRaw&r=0");
+                    $asociacionNueva->setLogo("https://cdn.domestika.org/c_limit,dpr_auto,f_auto,q_auto,w_820/v1478201084/content-items/001/761/909/Captura_de_pantalla_2016-10-30_a_las_12.17.35-original.png?1478201084");
                 } else {
                     $asociacionNueva->setLogo($json['logo']);
                 }
                 //GUARDAR
                 $asociacionRepository->save($asociacionNueva, true);
 
-                return new JsonResponse("{ mensaje: Asociacion creada correctamente }", 200, [], true);
+                return $this->json([
+                    "message" => "asociacion creada correctamente"
+                ]);
             } else {
                 return $this->json([
                     "error" => "usuario asociado a la protectora no encontrado"

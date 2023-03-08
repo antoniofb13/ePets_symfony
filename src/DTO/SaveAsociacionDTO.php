@@ -10,6 +10,8 @@ class SaveAsociacionDTO{
     private string $direccion;
     private int $capacidad;
 
+    private string $logo;
+
 
     public function __construct()
     {
@@ -62,6 +64,24 @@ class SaveAsociacionDTO{
     {
         $this->capacidad = $capacidad;
     }
+
+    /**
+     * @return string
+     */
+    public function getLogo(): string
+    {
+        return $this->logo;
+    }
+
+    /**
+     * @param string $logo
+     */
+    public function setLogo(string $logo): void
+    {
+        $this->logo = $logo;
+    }
+
+
 
 
 }

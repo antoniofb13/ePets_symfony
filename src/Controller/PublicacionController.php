@@ -60,7 +60,7 @@ class PublicacionController extends AbstractController
 
             //Buscamos el usuario
             $idUsuario = Token::getPayload($token)['user_id'];
-            $usuario = $userRepository->findOneBy(array("id"=>$idUsuario));
+            $usuario = $userRepository->findOneBy(array("id" => $idUsuario));
 
             if ($usuario) {
                 $fechaActual = date("Y-m-d H:i:s");
@@ -148,42 +148,59 @@ class PublicacionController extends AbstractController
 
     #[Route('/list/acabadas', name: 'app_publicacion_listarpublicacionesacabadasporusuario', methods: ['GET'])]
     #[OA\Tag(name: 'Listar')]
-    #[OA\Parameter(name: 'idUser', description: "Id del Usuario", in: "query", required: true, schema: new OA\Schema(type: "string"))]
+    //#[OA\Parameter(name: 'idUser', description: "Id del Usuario", in: "query", required: true, schema: new OA\Schema(type: "string"))]
     public function listarPublicacionesAcabadasPorUsuario(Utilidades $utilidades, ConvertersDTO $convertersDTO, Request $request): JsonResponse
     {
         //CARGA DATOS
         $em = $this->doctrine->getManager();
         $publicacionesRepository = $em->getRepository(Publicaciones::class);
+        $usuarioRepository = $em->getRepository(User::class);
         //$comentariosRepository = $em->getRepository(Comentarios::class);
 
-        $idUser = $request->query->get("idUser");
+        //Obtener token de header
+        $token = $request->headers->get('token');
+        $valido = $utilidades->esApiKeyValida($token, null);
 
-
-        $listPublicaciones = $publicacionesRepository->buscarPorEstadoCerradoAndUser($idUser);
-
-        if ($listPublicaciones != null) {
-            $listJson = array();
-
-            foreach ($listPublicaciones as $publicacion) {
-                $publicacionDTO = $convertersDTO->publicacionDTO($publicacion);
-                $json = $utilidades->toJson($publicacionDTO, null);
-                $listJson[] = json_decode($json);
-            }
-        } else {
+        if (!$valido) {
             return $this->json([
-                "error" => "No hay publicaciones acabadas",
+                "prohibido" => "no tiene permisos para acceder a este sitio"
             ]);
-        }
+        } else {
+            //Buscamos el usuario
+            $idUsuario = Token::getPayload($token)['user_id'];
+            $user = $usuarioRepository->findOneBy(array("id" => $idUsuario));
 
+            if ($user) {
+                $listPublicaciones = $publicacionesRepository->buscarPorEstadoCerradoAndUser($idUsuario);
+
+                if ($listPublicaciones != null) {
+                    $listJson = array();
+
+                    foreach ($listPublicaciones as $publicacion) {
+                        $publicacionDTO = $convertersDTO->publicacionDTO($publicacion);
+                        $json = $utilidades->toJson($publicacionDTO, null);
+                        $listJson[] = json_decode($json);
+                    }
+                } else {
+                    return $this->json([
+                        "error" => "No hay publicaciones acabadas",
+                    ]);
+                }
+            } else {
+                return $this->json([
+                    "error" => "No existe este usuario",
+                ]);
+            }
+        }
         return $this->json([
-            "publicaciones" => $listJson,
+            "acabadas" => $listJson
         ]);
     }
 
 
     #[Route('/cambiar', name: 'app_publicacion_cambiarestadopub', methods: ['PUT'])]
     #[OA\Tag(name: 'Actualizar')]
-    #[OA\RequestBody(description: "Dto de cambiar Estado", content: new OA\JsonContent(ref: new Model(type: CambiarEstadoPubDTO::class)))]
+    //#[OA\RequestBody(description: "Dto de cambiar Estado", content: new OA\JsonContent(ref: new Model(type: CambiarEstadoPubDTO::class)))]
     #[OA\Parameter(name: 'idPub', description: "Id de la Publicacion", in: "query", required: true, schema: new OA\Schema(type: "string"))]
     public function cambiarEstadoPub(Utilidades $utilidades, ConvertersDTO $convertersDTO, Request $request): JsonResponse
     {
@@ -197,26 +214,34 @@ class PublicacionController extends AbstractController
 
 
         //Obtener Json del body
-        $json = json_decode($request->getContent(), true);
         if ($publicacion) {
-            $listJson = array();
+            if ($publicacion->isEstado() == 0) {
+                $publicacion->setEstado(1);
+                $em->persist($publicacion);
+                $em->flush();
 
-            $publicacion->setEstado($json["estado"]);
-            $em->persist($publicacion);
-            $em->flush();
+                return $this->json([
+                    "message" => "estado de la publicacion cambiada: " . $publicacion->isEstado()
+                ]);
+            } else {
+                $publicacion->setEstado(0);
+                $em->persist($publicacion);
+                $em->flush();
 
-            $publicacionDTO = $convertersDTO->publicacionDTO($publicacion);
-            $json = $utilidades->toJson($publicacionDTO, null);
-            $listJson[] = json_decode($json);
+                return $this->json([
+                    "message" => "estado de la publicacion cambiada: " . $publicacion->isEstado()
+                ]);
+            }
 
-            return new JsonResponse($listJson, 200, [], false);
         } else {
-            return new JsonResponse("{ mensaje: No se encuentra la publicacion }", 200, [], false);
+            return $this->json([
+                "error" => "no se ha podido cambiar el estado de la publicacion"
+            ]);
         }
 
     }
 
-    #[Route('/buscarTag', name: '', methods: ['GET'])]
+    #[Route('/buscarTag', name: 'app_publicacion_buscarportag', methods: ['GET'])]
     #[OA\Tag(name: 'Buscador')]
     //#[OA\Parameter(name: 'idPub', description: "Id de la Publicacion", in: "query", required: true, schema: new OA\Schema(type: "string") )]
     #[OA\Parameter(name: 'tag', description: "Nombre del tag", in: "query", required: true, schema: new OA\Schema(type: "string"))]
@@ -253,16 +278,17 @@ class PublicacionController extends AbstractController
                 "error" => "tag no encontrado",
             ]);
         }
-        return $this->json([
-            "publicaciones" => $listJson,
-        ]);
+        return $this->json(
+            $listJson
+        );
     }
 
     #[Route('/like', name: 'app_publicacion_likes', methods: ['PUT'])]
     #[OA\Tag(name: 'Likes')]
     //#[OA\RequestBody(description: "Dto de idPub", content: new OA\JsonContent(ref: new Model(type: saveLikeDTO::class)))]
-    #[OA\Parameter(name: 'idPub', description: "Id de la Publicacion", in: "query", required: true, schema: new OA\Schema(type: "string") )]
-    public function likes(Request $request){
+    #[OA\Parameter(name: 'idPub', description: "Id de la Publicacion", in: "query", required: true, schema: new OA\Schema(type: "string"))]
+    public function likes(Request $request)
+    {
         $em = $this->doctrine->getManager();
         $publicacionesRepository = $em->getRepository(Publicaciones::class);
 
@@ -271,9 +297,9 @@ class PublicacionController extends AbstractController
         $idPub = $request->query->get("idPub");
         //$idPub = $json["idPub"];
 
-        $publicacion = $publicacionesRepository->findOneBy(array("id"=>$idPub));
+        $publicacion = $publicacionesRepository->findOneBy(array("id" => $idPub));
 
-        if($publicacion){
+        if ($publicacion) {
             try {
                 $likes = $publicacion->getLikes();
                 $nuevoLike = $likes + 1;
@@ -281,40 +307,41 @@ class PublicacionController extends AbstractController
 
                 $em->persist($publicacion);
                 $em->flush();
-            }catch (Exception $e){
-                echo '{"error":"Caught exception: ' . $e->getMessage() .'"}';
+            } catch (Exception $e) {
+                echo '{"error":"Caught exception: ' . $e->getMessage() . '"}';
             }
-        }else{
+        } else {
             return $this->json([
-                'error'=>'No existe esta publicación'
+                'error' => 'No existe esta publicación'
             ]);
         }
         return $this->json([
-            "message"=>"Numero de likes actualizado: ".$publicacion->getLikes()
+            "message" => "Numero de likes actualizado: " . $publicacion->getLikes()
         ]);
     }
 
-    #[Route('/verPub', name: '', methods: ['GET'])]
+    #[Route('/verPub', name: 'app_publicacion_verpubporid', methods: ['GET'])]
     #[OA\Tag(name: 'Listar')]
-    #[OA\Parameter(name: 'idPub', description: "Id de la Publicacion", in: "query", required: true, schema: new OA\Schema(type: "string") )]
-    public function verPubPorId(Request $request, Utilidades $utilidades, ConvertersDTO $convertersDTO){
+    #[OA\Parameter(name: 'idPub', description: "Id de la Publicacion", in: "query", required: true, schema: new OA\Schema(type: "string"))]
+    public function verPubPorId(Request $request, Utilidades $utilidades, ConvertersDTO $convertersDTO)
+    {
 
         $em = $this->doctrine->getManager();
         $publicacionesRepository = $em->getRepository(Publicaciones::class);
 
         $idPub = $request->query->get("idPub");
 
-        $publicacion = $publicacionesRepository->findOneBy(array("id"=>$idPub));
+        $publicacion = $publicacionesRepository->findOneBy(array("id" => $idPub));
 
-        if($publicacion){
+        if ($publicacion) {
             $publicacionDTO = $convertersDTO->publicacionDTO($publicacion);
-        }else{
+        } else {
             return $this->json([
-                "error"=>"No se encuentra esta publicacion"
+                "error" => "No se encuentra esta publicacion"
             ]);
         }
-        return $this->json([
-            "publicacion"=>$publicacionDTO
-        ]);
+        return $this->json(
+            $publicacionDTO
+        );
     }
 }

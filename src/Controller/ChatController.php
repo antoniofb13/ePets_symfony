@@ -109,8 +109,8 @@ class ChatController extends AbstractController
                 "error"=>"este usuario receptor no existe",
             ]);
         }
-        return $this->json([
-            "mensajes"=>$listJson
-        ]);
+        return $this->json(
+            $listJson
+        );
     }
 }
