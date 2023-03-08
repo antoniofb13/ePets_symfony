@@ -216,7 +216,7 @@ class PublicacionController extends AbstractController
 
     }
 
-    #[Route('/buscarTag', name: '', methods: ['GET'])]
+    #[Route('/buscarTag', name: 'app_publicacion_buscarportag', methods: ['GET'])]
     #[OA\Tag(name: 'Buscador')]
     //#[OA\Parameter(name: 'idPub', description: "Id de la Publicacion", in: "query", required: true, schema: new OA\Schema(type: "string") )]
     #[OA\Parameter(name: 'tag', description: "Nombre del tag", in: "query", required: true, schema: new OA\Schema(type: "string"))]

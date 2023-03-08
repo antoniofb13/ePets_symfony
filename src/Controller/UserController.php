@@ -11,6 +11,7 @@ use App\Entity\User;
 use App\Utilities\Utilidades;
 use Doctrine\Persistence\ManagerRegistry;
 use Nelmio\ApiDocBundle\Annotation\Model;
+use ReallySimpleJWT\Token;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -72,115 +73,132 @@ class UserController extends AbstractController
     #[Route('/editarPerfil', name: 'app_user_editarperfil', methods: ['PUT'])]
     #[OA\Tag(name: 'Perfil')]
     #[OA\RequestBody(description: "Dto de Perfil de User", content: new OA\JsonContent(ref: new Model(type: editarUserDTO::class)))]
-    #[OA\Parameter(name: 'idUser', description: "Id del Usuario", in: "query", required: true, schema: new OA\Schema(type: "string"))]
+    //#[OA\Parameter(name: 'idUser', description: "Id del Usuario", in: "query", required: true, schema: new OA\Schema(type: "string"))]
     public function editarPerfil(Utilidades $utilidades, ConvertersDTO $convertersDTO, Request $request)
     {
         //CARGA DATOS
         $em = $this->doctrine->getManager();
-        $usuarioRepository = $em->getRepository(User::class);
+        $userRepository = $em->getRepository(User::class);
+        //Obtener token de header
+        $token = $request->headers->get('token');
+        $valido = $utilidades->esApiKeyValida($token, null);
 
-        $idUser = $request->query->get("idUser");
+        if (!$valido) {
+            return $this->json([
+                "prohibido" => "no tiene permisos para acceder a este sitio"
+            ]);
+        }else {
+            $idUsuario = Token::getPayload($token)['user_id'];
+            $user = $userRepository->findOneBy(array("id" => $idUsuario));
 
-        $user = $usuarioRepository->findOneBy(array("id" => $idUser));
 
-        if ($user) {
-            $json = json_decode($request->getContent(), true);
-            if ($json["username"] != null) {
-                $username = $json["username"];
-                $userRepo = $usuarioRepository->findOneBy(array("username" => $username));
+            if ($user) {
+                $json = json_decode($request->getContent(), true);
+                if ($json["username"] != null) {
+                    $username = $json["username"];
+                    $userRepo = $userRepository->findOneBy(array("username" => $username));
 
-                if ($userRepo == null) {
-                    $user->setUsername($json["username"]);
-                    if ($json["nombre"] == null) {
-                        $user->setNombre($user->getNombre());
+                    if ($userRepo == null) {
+                        $user->setUsername($json["username"]);
+                        if ($json["nombre"] == null) {
+                            $user->setNombre($user->getNombre());
 
-                    } elseif ($json["nombre"] != null) {
-                        $user->setNombre($json["nombre"]);
+                        } elseif ($json["nombre"] != null) {
+                            $user->setNombre($json["nombre"]);
 
-                    } elseif ($json["apellidos"] == null) {
-                        $user->setApellidos($user->getApellidos());
+                        }
+                        if ($json["apellidos"] == null) {
+                            $user->setApellidos($user->getApellidos());
 
-                    }elseif ($json["apellidos"]!=null){
-                        $user->setApellidos($json["apellidos"]);
+                        } elseif ($json["apellidos"] != null) {
+                            $user->setApellidos($json["apellidos"]);
 
-                    } elseif ($json["telefono"] == null) {
-                        $user->setTelefono($user->getTelefono());
+                        }
+                        if ($json["telefono"] == null) {
+                            $user->setTelefono($user->getTelefono());
 
-                    }elseif ($json["telefono"]!=null){
-                        $user->setTelefono($json["telefono"]);
+                        } elseif ($json["telefono"] != null) {
+                            $user->setTelefono($json["telefono"]);
 
-                    } elseif ($json["imagen"] == null) {
-                        $user->setImagen($user->getImagen());
+                        }
+                        if ($json["imagen"] == null) {
+                            $user->setImagen($user->getImagen());
 
-                    }elseif ($json["imagen"]!= null){
-                        $user->setImagen($json["imagen"]);
+                        } elseif ($json["imagen"] != null) {
+                            $user->setImagen($json["imagen"]);
+                        } else {
+                            return $this->json([
+                                "error" => "este nombre de usuario ya existe",
+                            ]);
+                        }
+
+                        $em->persist($user);
+                        $em->flush();
+
                     } else {
-                        return $this->json([
-                            "error" => "este nombre de usuario ya existe",
-                        ]);
+
+                        if ($json["nombre"] == null) {
+                            $user->setNombre($user->getNombre());
+
+                        } elseif ($json["nombre"] != null) {
+                            $user->setNombre($json["nombre"]);
+
+                        }
+                        if ($json["apellidos"] == null) {
+                            $user->setApellidos($user->getApellidos());
+
+                        } elseif ($json["apellidos"] != null) {
+                            $user->setApellidos($json["apellidos"]);
+
+                        }
+                        if ($json["telefono"] == null) {
+                            $user->setTelefono($user->getTelefono());
+
+                        } elseif ($json["telefono"] != null) {
+                            $user->setTelefono($json["telefono"]);
+
+                        }
+                        if ($json["imagen"] == null) {
+                            $user->setImagen($user->getImagen());
+
+                        } elseif ($json["imagen"] != null) {
+                            $user->setImagen($json["imagen"]);
+                        }
+                        if ($json["nombre"] == null) {
+                            $user->setNombre($user->getNombre());
+
+                        } elseif ($json["nombre"] != null) {
+                            $user->setNombre($json["nombre"]);
+
+                        } elseif ($json["apellidos"] == null) {
+                            $user->setApellidos($user->getApellidos());
+
+                        } elseif ($json["apellidos"] != null) {
+                            $user->setApellidos($json["apellidos"]);
+
+                        } elseif ($json["telefono"] == null) {
+                            $user->setTelefono($user->getTelefono());
+
+                        } elseif ($json["telefono"] != null) {
+                            $user->setTelefono($json["telefono"]);
+
+                        } elseif ($json["imagen"] == null) {
+                            $user->setImagen($user->getImagen());
+
+                        } elseif ($json["imagen"] != null) {
+                            $user->setImagen($json["imagen"]);
+                        }
+                        $em->persist($user);
+                        $em->flush();
                     }
 
-                    $em->persist($user);
-                    $em->flush();
-
-                }else{
-                    if ($json["nombre"] == null) {
-                        $user->setNombre($user->getNombre());
-
-                    } elseif ($json["nombre"] != null) {
-                        $user->setNombre($json["nombre"]);
-
-                    } elseif ($json["apellidos"] == null) {
-                        $user->setApellidos($user->getApellidos());
-
-                    }elseif ($json["apellidos"]!=null){
-                        $user->setApellidos($json["apellidos"]);
-
-                    } elseif ($json["telefono"] == null) {
-                        $user->setTelefono($user->getTelefono());
-
-                    }elseif ($json["telefono"]!=null){
-                        $user->setTelefono($json["telefono"]);
-
-                    } elseif ($json["imagen"] == null) {
-                        $user->setImagen($user->getImagen());
-
-                    }elseif ($json["imagen"]!= null){
-                        $user->setImagen($json["imagen"]);
-                    }if ($json["nombre"] == null) {
-                        $user->setNombre($user->getNombre());
-
-                    } elseif ($json["nombre"] != null) {
-                        $user->setNombre($json["nombre"]);
-
-                    } elseif ($json["apellidos"] == null) {
-                        $user->setApellidos($user->getApellidos());
-
-                    }elseif ($json["apellidos"]!=null){
-                        $user->setApellidos($json["apellidos"]);
-
-                    } elseif ($json["telefono"] == null) {
-                        $user->setTelefono($user->getTelefono());
-
-                    }elseif ($json["telefono"]!=null){
-                        $user->setTelefono($json["telefono"]);
-
-                    } elseif ($json["imagen"] == null) {
-                        $user->setImagen($user->getImagen());
-
-                    }elseif ($json["imagen"]!= null){
-                        $user->setImagen($json["imagen"]);
-                    }
-                    $em->persist($user);
-                    $em->flush();
                 }
 
+            } else {
+                return $this->json([
+                    "error" => "No se ha encontrado el usuario",
+                ]);
             }
-
-        } else {
-            return $this->json([
-                "error" => "No se ha encontrado el usuario",
-            ]);
         }
         return $this->json([
             "message" => "Perfil modificado con éxito",
