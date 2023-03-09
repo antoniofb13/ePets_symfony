@@ -57,17 +57,17 @@ class TagsController extends AbstractController
 
             }else{
                 return $this->json([
-                    'message' => "Esta etiqueta no existe",
+                    'error' => "Esta etiqueta no existe",
                 ]);
             }
 
         }else{
             return $this->json([
-                'message' => "Esta publicacion no existe",
+                'error' => "Esta publicacion no existe",
             ]);
         }
         return $this->json([
-            'exito' => "Etiqueta asignada con éxito",
+            'message' => "Etiqueta asignada con éxito",
         ]);
     }
 
